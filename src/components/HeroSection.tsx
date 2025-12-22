@@ -173,12 +173,12 @@ const HeroSection = () => {
       {/* Search Bar */}
       <div className="relative -mt-20 md:-mt-28 left-1/2 -translate-x-1/2 w-[95%] max-w-5xl z-20">
         <div className="bg-card rounded-xl shadow-elevated overflow-hidden border border-border">
-          <div className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+          <div className="p-4 md:p-6">
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
               {/* Location Input */}
-              <div className="md:col-span-2 relative">
+              <div className="flex-[2] relative">
+                <label className="block text-xs font-semibold text-foreground mb-1.5">Địa điểm</label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
                   <Input
                     ref={inputRef}
                     value={locationInput}
@@ -187,7 +187,7 @@ const HeroSection = () => {
                     onBlur={handleInputBlur}
                     onKeyDown={handleKeyDown}
                     placeholder="Bạn muốn đi đâu?"
-                    className="pl-10 h-12 text-base border-2 focus:border-primary"
+                    className="h-11 text-sm border-0 bg-transparent focus-visible:ring-0 px-0 placeholder:text-muted-foreground"
                   />
                 </div>
                 {/* Autocomplete Dropdown */}
@@ -220,21 +220,22 @@ const HeroSection = () => {
                 )}
               </div>
 
+              {/* Divider */}
+              <div className="hidden md:block w-px h-12 bg-border" />
+
               {/* Check-in Date */}
-              <div className="relative">
-                <Button
-                  variant="outline"
-                  className="w-full h-12 justify-start px-4 text-left font-normal border-2 hover:border-primary"
+              <div className="flex-1 relative">
+                <label className="block text-xs font-semibold text-foreground mb-1.5">Check-in</label>
+                <button
+                  type="button"
                   onClick={() => {
                     const input = document.getElementById("checkin-date") as HTMLInputElement;
                     input?.showPicker?.();
                   }}
+                  className="w-full text-left text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Calendar className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
-                  <span className="text-sm">
-                    {checkInDate ? formatDateDisplay(checkInDate).date : "Thêm ngày"}
-                  </span>
-                </Button>
+                  {checkInDate ? formatDateDisplay(checkInDate).date : "Thêm ngày"}
+                </button>
                 <Input
                   id="checkin-date"
                   type="date"
@@ -244,21 +245,22 @@ const HeroSection = () => {
                 />
               </div>
 
+              {/* Divider */}
+              <div className="hidden md:block w-px h-12 bg-border" />
+
               {/* Check-out Date */}
-              <div className="relative">
-                <Button
-                  variant="outline"
-                  className="w-full h-12 justify-start px-4 text-left font-normal border-2 hover:border-primary"
+              <div className="flex-1 relative">
+                <label className="block text-xs font-semibold text-foreground mb-1.5">Check-out</label>
+                <button
+                  type="button"
                   onClick={() => {
                     const input = document.getElementById("checkout-date") as HTMLInputElement;
                     input?.showPicker?.();
                   }}
+                  className="w-full text-left text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Calendar className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
-                  <span className="text-sm">
-                    {checkOutDate ? formatDateDisplay(checkOutDate).date : "Thêm ngày"}
-                  </span>
-                </Button>
+                  {checkOutDate ? formatDateDisplay(checkOutDate).date : "Thêm ngày"}
+                </button>
                 <Input
                   id="checkout-date"
                   type="date"
@@ -268,25 +270,22 @@ const HeroSection = () => {
                 />
               </div>
 
+              {/* Divider */}
+              <div className="hidden md:block w-px h-12 bg-border" />
+
               {/* Guests/Rooms */}
-              <div className="relative">
+              <div className="flex-1">
                 <Popover open={guestPopoverOpen} onOpenChange={setGuestPopoverOpen}>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full h-12 justify-between px-4 text-left font-normal border-2 hover:border-primary"
+                    <button
+                      type="button"
+                      className="w-full text-left"
                     >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Users className="h-5 w-5 shrink-0 text-muted-foreground" />
-                        <span className="text-sm truncate">
-                          {guestData.adults} người, {guestData.rooms} phòng
-                        </span>
-                      </div>
-                      <ChevronDown className={cn(
-                        "h-4 w-4 shrink-0 text-muted-foreground transition-transform ml-2",
-                        guestPopoverOpen && "rotate-180"
-                      )} />
-                    </Button>
+                      <label className="block text-xs font-semibold text-foreground mb-1.5">Khách</label>
+                      <span className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        {guestData.adults} người, {guestData.rooms} phòng
+                      </span>
+                    </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80 p-0" align="start">
                     <TooltipProvider>
@@ -389,16 +388,13 @@ const HeroSection = () => {
                 </Popover>
               </div>
 
-            </div>
-
-            {/* Search Button - Full width on mobile */}
-            <div className="md:col-span-5 flex justify-center md:justify-end mt-2">
+              {/* Search Button - Circular on same row */}
               <Button
                 onClick={handleSearch}
-                className="w-full md:w-auto h-12 px-8 rounded-full bg-primary hover:bg-navy-light shadow-lg hover:shadow-xl transition-all gap-2"
+                size="icon"
+                className="h-12 w-12 rounded-full bg-primary hover:bg-navy-light shadow-lg hover:shadow-xl transition-all shrink-0"
               >
-                <Search className="h-5 w-5" />
-                <span className="font-medium">Tìm kiếm</span>
+                <ArrowRight className="h-5 w-5" />
               </Button>
             </div>
           </div>
