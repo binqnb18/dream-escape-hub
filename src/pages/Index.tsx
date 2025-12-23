@@ -23,20 +23,20 @@ const Index = () => {
         {/* 2. Trust Badges - Build Trust Immediately */}
         <TrustBadges />
         
-        {/* 3. Popular Destinations - Inspire & Suggest Locations */}
+        {/* 3. How It Works - Explain Process Early */}
+        <HowItWorks />
+        
+        {/* 4. Popular Destinations - Inspire & Suggest Locations */}
         <PopularDestinations />
         
-        {/* 4. Featured Hotels - Showcase Best Products */}
+        {/* 5. Featured Hotels - Showcase Best Products */}
         <FeaturedHotels />
         
-        {/* 5. Accommodation Promotions - Incentivize Booking */}
-        <AccommodationPromotions />
-        
-        {/* 6. Testimonials - Social Proof */}
+        {/* 6. Testimonials - Social Proof After Hotels */}
         <Testimonials />
         
-        {/* 7. How It Works - Explain Process */}
-        <HowItWorks />
+        {/* 7. Accommodation Promotions - Incentivize Booking */}
+        <AccommodationPromotions />
         
         {/* 8. Blog Section - SEO & Engagement */}
         <BlogSection />
