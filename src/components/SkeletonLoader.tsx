@@ -1,13 +1,73 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface SkeletonLoaderProps {
-  type?: "card" | "list" | "text" | "image";
+  type?: "card" | "list" | "text" | "image" | "search-card";
   count?: number;
 }
 
 const SkeletonLoader = ({ type = "card", count = 1 }: SkeletonLoaderProps) => {
   const renderSkeleton = () => {
     switch (type) {
+      case "search-card":
+        return (
+          <div className="bg-card rounded-lg border overflow-hidden animate-pulse">
+            {/* Desktop */}
+            <div className="hidden md:flex">
+              <Skeleton className="w-64 h-[220px] rounded-none" />
+              <div className="flex-1 p-4 flex">
+                <div className="flex-1 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <div className="flex gap-1">
+                    <Skeleton className="h-3 w-3" />
+                    <Skeleton className="h-3 w-3" />
+                    <Skeleton className="h-3 w-3" />
+                  </div>
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-4/5" />
+                  <div className="flex gap-2 pt-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+                <div className="w-44 pl-4 border-l border-border space-y-3">
+                  <div className="space-y-2 text-right">
+                    <Skeleton className="h-5 w-24 ml-auto" />
+                    <Skeleton className="h-3 w-20 ml-auto" />
+                    <Skeleton className="h-3 w-28 ml-auto" />
+                  </div>
+                  <div className="space-y-2 text-right pt-6">
+                    <Skeleton className="h-5 w-20 ml-auto" />
+                    <Skeleton className="h-4 w-24 ml-auto" />
+                    <Skeleton className="h-7 w-28 ml-auto" />
+                    <Skeleton className="h-3 w-32 ml-auto" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Mobile */}
+            <div className="md:hidden">
+              <Skeleton className="w-full h-48 rounded-none" />
+              <div className="p-3 space-y-3">
+                <div className="flex justify-between">
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <div className="flex gap-1">
+                      <Skeleton className="h-3 w-3" />
+                      <Skeleton className="h-3 w-3" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-8 w-8" />
+                </div>
+                <Skeleton className="h-3 w-2/3" />
+                <div className="flex justify-between pt-2 border-t">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-5 w-24" />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       case "card":
         return (
           <div className="bg-card rounded-lg border overflow-hidden">
@@ -63,11 +123,11 @@ const SkeletonLoader = ({ type = "card", count = 1 }: SkeletonLoaderProps) => {
   };
 
   return (
-    <>
+    <div className="space-y-4">
       {Array.from({ length: count }).map((_, index) => (
         <div key={index}>{renderSkeleton()}</div>
       ))}
-    </>
+    </div>
   );
 };
 

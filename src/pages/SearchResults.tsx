@@ -39,16 +39,24 @@ const SearchResults = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [sortBy, setSortBy] = useState("best-match");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<SearchFiltersType>(defaultFilters);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [displayCount, setDisplayCount] = useState(6);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   
   // Search bar states
   const [destination, setDestination] = useState("Ho Chi Minh City");
   const [checkInDate, setCheckInDate] = useState<Date>(new Date());
   const [checkOutDate, setCheckOutDate] = useState<Date>(addDays(new Date(), 1));
   const [guests, setGuests] = useState({ adults: 2, rooms: 1 });
+
+  // Simulate initial loading
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Sync sortBy with URL
   useEffect(() => {
@@ -83,9 +91,10 @@ const SearchResults = () => {
     {
       id: 1,
       image: hotel1,
+      images: [hotel1, hotel2, hotel3],
       name: "Vilion Central Hotel",
       location: "District 1, Ho Chi Minh City - City center",
-      distance: "2.3 km from Saigon Railway Station • 353 m from Ben Thanh Market • 574 m from The Independence Palace",
+      distance: "2.3 km from Saigon Railway Station • 353 m from Ben Thanh Market",
       rating: 6.9,
       reviewCount: "2,560",
       reviewLabel: "Good",
@@ -98,60 +107,112 @@ const SearchResults = () => {
       perks: ["Book without a credit card", "+ FREE CANCELLATION"],
       priceNote: "Per night before taxes and fees",
       starRating: 3,
-      roomType: "Deluxe Twin Room",
-      nights: 1,
-      amenities: ["Free WiFi", "Air conditioning"],
       locationScore: 8.1,
       couponApplied: "₫ 34890 applied",
     },
     {
       id: 2,
       image: hotel2,
+      images: [hotel2, hotel1, hotel3],
       name: "New Star Inn Boutique",
       location: "District 3, Ho Chi Minh City - 32 m to center",
-      distance: "1.7 km from Saigon Railway Station • 572 m from War Remnants Museum • 628 m from The Independence Palace",
+      distance: "1.7 km from Saigon Railway Station • 572 m from War Remnants Museum",
       rating: 7.4,
       reviewCount: "811",
       reviewLabel: "Very good",
       oldPrice: "",
       newPrice: "546.708",
       discount: "",
-      badge: "",
       limitedText: "ONLY 1 LEFT",
       features: ["Agoda Preferred"],
       perks: ["Book without a credit card"],
       priceNote: "Per night before taxes and fees",
       starRating: 2,
-      roomType: "Standard Room",
-      nights: 1,
-      amenities: ["Free WiFi", "Air conditioning"],
       locationScore: 8.1,
       bookedToday: "Booked 13 times today",
     },
     {
       id: 3,
       image: hotel3,
+      images: [hotel3, hotel1, hotel2],
       name: "Anh Duy Hotel",
       location: "District 1, Ho Chi Minh City - City center",
-      distance: "3.2 km from Saigon Railway Station • 303 m from Bitexco Financial Tower • 525 m from Ho Chi Minh City Museum",
+      distance: "3.2 km from Saigon Railway Station • 303 m from Bitexco Financial Tower",
       rating: 7.2,
       reviewCount: "1,230",
       reviewLabel: "Very good",
       oldPrice: "890.000",
       newPrice: "650.000",
       discount: "-27%",
-      badge: "",
-      limitedText: "",
       features: ["Agoda Preferred"],
       perks: ["Free cancellation", "Pay at the hotel"],
       priceNote: "Per night before taxes and fees",
       starRating: 2,
-      roomType: "Superior Double Room",
-      nights: 1,
-      amenities: ["Free WiFi", "Breakfast included"],
       locationScore: 7.8,
     },
+    {
+      id: 4,
+      image: hotel1,
+      images: [hotel1, hotel3],
+      name: "Liberty Central Saigon",
+      location: "District 1, Ho Chi Minh City - City center",
+      distance: "500 m from Ben Thanh Market • 1.2 km from Opera House",
+      rating: 8.5,
+      reviewCount: "3,420",
+      reviewLabel: "Excellent",
+      oldPrice: "2.500.000",
+      newPrice: "1.750.000",
+      discount: "-30%",
+      badge: "Best Seller",
+      features: ["Agoda Preferred"],
+      perks: ["Free cancellation", "Breakfast included"],
+      priceNote: "Per night before taxes and fees",
+      starRating: 4,
+      locationScore: 9.0,
+    },
+    {
+      id: 5,
+      image: hotel2,
+      images: [hotel2, hotel3],
+      name: "Rex Hotel Saigon",
+      location: "District 1, Ho Chi Minh City - City center",
+      distance: "200 m from Nguyen Hue Walking Street • 800 m from Notre Dame Cathedral",
+      rating: 8.8,
+      reviewCount: "5,120",
+      reviewLabel: "Excellent",
+      oldPrice: "3.200.000",
+      newPrice: "2.400.000",
+      discount: "-25%",
+      badge: "Top Rated",
+      features: ["Agoda Preferred"],
+      perks: ["Free cancellation", "Pool access", "Spa included"],
+      priceNote: "Per night before taxes and fees",
+      starRating: 5,
+      locationScore: 9.5,
+    },
+    {
+      id: 6,
+      image: hotel3,
+      images: [hotel3, hotel1],
+      name: "Silverland Yen Hotel",
+      location: "District 1, Ho Chi Minh City - City center",
+      distance: "1.5 km from Saigon Railway Station • 400 m from Ben Thanh Market",
+      rating: 7.8,
+      reviewCount: "1,890",
+      reviewLabel: "Very good",
+      oldPrice: "1.200.000",
+      newPrice: "890.000",
+      discount: "-26%",
+      features: ["Agoda Preferred"],
+      perks: ["Book without a credit card", "Free cancellation"],
+      priceNote: "Per night before taxes and fees",
+      starRating: 3,
+      locationScore: 8.3,
+      bookedToday: "Booked 8 times today",
+    },
   ];
+
+  const TOTAL_RESULTS = 8157;
 
   const sortOptions = [
     { key: "best-match", label: "Best match" },
@@ -379,6 +440,16 @@ const SearchResults = () => {
 
           {/* Results Section */}
           <div className="flex-1">
+            {/* Results Count */}
+            <div className="mb-4">
+              <h1 className="text-xl font-bold text-foreground">
+                {destination}: {TOTAL_RESULTS.toLocaleString()} properties found
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Prices shown are per night for 1 room, {guests.adults} adult{guests.adults > 1 ? 's' : ''}
+              </p>
+            </div>
+
             {/* Sort Tabs */}
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2 overflow-x-auto pb-2">
@@ -429,11 +500,7 @@ const SearchResults = () => {
 
             {/* Loading State */}
             {isLoading && (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <SkeletonLoader key={i} type="card" />
-                ))}
-              </div>
+              <SkeletonLoader type="search-card" count={3} />
             )}
 
             {/* Error State */}
@@ -444,7 +511,7 @@ const SearchResults = () => {
                 onRetry={() => {
                   setError(null);
                   setIsLoading(true);
-                  setTimeout(() => setIsLoading(false), 1000);
+                  setTimeout(() => setIsLoading(false), 1500);
                 }}
               />
             )}
@@ -453,20 +520,61 @@ const SearchResults = () => {
             {!isLoading && !error && filteredAndSortedResults.length === 0 && (
               <EmptyState
                 title="No properties found"
-                message="Try adjusting your filters or changing your search criteria."
+                message="We couldn't find any properties matching your search criteria."
                 onAction={() => setFilters(defaultFilters)}
               />
             )}
 
             {/* Results */}
             {!isLoading && !error && filteredAndSortedResults.length > 0 && (
-              <div className="space-y-4">
-                {filteredAndSortedResults.map((result, index) => (
-                  <ScrollReveal key={result.id} delay={index * 100}>
-                    <SearchResultCard {...result} />
-                  </ScrollReveal>
-                ))}
-              </div>
+              <>
+                <div className="space-y-4">
+                  {filteredAndSortedResults.slice(0, displayCount).map((result, index) => (
+                    <ScrollReveal key={result.id} delay={index * 80}>
+                      <SearchResultCard {...result} />
+                    </ScrollReveal>
+                  ))}
+                </div>
+
+                {/* Load More / Pagination */}
+                {displayCount < filteredAndSortedResults.length && (
+                  <div className="mt-6 text-center">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Showing {Math.min(displayCount, filteredAndSortedResults.length)} of {filteredAndSortedResults.length} properties
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="min-w-[200px]"
+                      disabled={isLoadingMore}
+                      onClick={() => {
+                        setIsLoadingMore(true);
+                        setTimeout(() => {
+                          setDisplayCount((prev) => prev + 6);
+                          setIsLoadingMore(false);
+                        }, 800);
+                      }}
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <span className="animate-spin mr-2">⏳</span>
+                          Loading...
+                        </>
+                      ) : (
+                        `Show more properties`
+                      )}
+                    </Button>
+                  </div>
+                )}
+
+                {displayCount >= filteredAndSortedResults.length && filteredAndSortedResults.length > 0 && (
+                  <div className="mt-6 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      Showing all {filteredAndSortedResults.length} properties
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
