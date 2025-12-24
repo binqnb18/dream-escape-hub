@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, ChevronDown } from "lucide-react";
+import { Menu, X, User, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import ThemeToggle from "./ThemeToggle";
+import LanguageToggle from "./LanguageToggle";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,7 +14,7 @@ const Header = () => {
     { label: "Khách sạn", href: "/search" },
     { label: "Điểm đến", href: "/destinations" },
     { label: "Ưu đãi", href: "/promotions" },
-    { label: "Hỗ trợ", href: "/support" },
+    { label: "Đặt phòng", href: "/bookings" },
   ];
 
   return (
@@ -49,20 +45,12 @@ const Header = () => {
           </nav>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+            
             {/* Language Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="hidden sm:flex gap-1">
-                  <span className="text-sm">VN</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Tiếng Việt</DropdownMenuItem>
-                <DropdownMenuItem>English</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <LanguageToggle />
 
             {/* Auth Buttons */}
             <Button variant="ghost" size="sm" className="hidden sm:flex">
