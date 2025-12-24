@@ -1,39 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { 
-  Search, 
-  X, 
-  ChevronDown, 
-  ChevronUp, 
   Star,
-  RotateCcw,
-  Wifi,
-  Car,
-  Waves,
-  Utensils,
-  Dumbbell,
-  Wind,
-  Tv,
-  Coffee,
-  Bath,
-  MapPin,
-  CreditCard,
-  Building2,
-  Hotel,
-  Home,
-  Castle
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import type { SearchFilters as SearchFiltersType } from "@/types/search";
 import { defaultFilters } from "@/types/search";
 
@@ -44,7 +19,8 @@ interface SearchFiltersProps {
 
 const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
   const [budget, setBudget] = useState(filters.budget);
-  const [textSearch, setTextSearch] = useState(filters.textSearch);
+  const [minBudget, setMinBudget] = useState(budget[0].toString());
+  const [maxBudget, setMaxBudget] = useState(budget[1].toString());
   const [selectedFilters, setSelectedFilters] = useState<{
     [key: string]: boolean;
   }>(() => {
@@ -64,30 +40,7 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     return initial;
   });
   
-  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
-    popular: true,
-    reviewScore: true,
-    starRating: true,
-    propertyType: false,
-    neighborhood: false,
-    payment: false,
-    facilities: false,
-    amenities: false,
-  });
-  
   const [showMoreSections, setShowMoreSections] = useState<{ [key: string]: boolean }>({});
-
-  // Count selected filters
-  const selectedCount = useMemo(() => {
-    return Object.values(selectedFilters).filter(Boolean).length;
-  }, [selectedFilters]);
-
-  // Get selected filter labels for badges
-  const selectedFilterLabels = useMemo(() => {
-    return Object.entries(selectedFilters)
-      .filter(([_, value]) => value)
-      .map(([key]) => key);
-  }, [selectedFilters]);
 
   useEffect(() => {
     const popularFilters: string[] = [];
@@ -123,7 +76,7 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
 
     onFiltersChange({
       budget,
-      textSearch,
+      textSearch: "",
       popularFilters,
       reviewScore,
       starRating,
@@ -133,14 +86,28 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
       propertyFacilities,
       roomAmenities,
     });
-  }, [budget, textSearch, selectedFilters, onFiltersChange]);
+  }, [budget, selectedFilters, onFiltersChange]);
 
   const handleBudgetChange = (newBudget: number[]) => {
     setBudget([newBudget[0], newBudget[1]]);
+    setMinBudget(newBudget[0].toString());
+    setMaxBudget(newBudget[1].toString());
   };
 
-  const handleTextSearchChange = (value: string) => {
-    setTextSearch(value);
+  const handleMinBudgetChange = (value: string) => {
+    setMinBudget(value);
+    const num = parseInt(value.replace(/[^0-9]/g, '')) || 0;
+    if (num <= budget[1]) {
+      setBudget([num, budget[1]]);
+    }
+  };
+
+  const handleMaxBudgetChange = (value: string) => {
+    setMaxBudget(value);
+    const num = parseInt(value.replace(/[^0-9]/g, '')) || 0;
+    if (num >= budget[0]) {
+      setBudget([budget[0], num]);
+    }
   };
 
   const handleFilterToggle = (filterKey: string) => {
@@ -150,46 +117,11 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     }));
   };
 
-  const handleResetAll = () => {
-    setBudget(defaultFilters.budget);
-    setTextSearch(defaultFilters.textSearch);
-    setSelectedFilters({});
-    onFiltersChange(defaultFilters);
-  };
-
-  const toggleSection = (sectionKey: string) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }));
-  };
-
   const toggleShowMore = (sectionKey: string) => {
     setShowMoreSections(prev => ({
       ...prev,
       [sectionKey]: !prev[sectionKey]
     }));
-  };
-
-  const getPropertyIcon = (label: string) => {
-    if (label.includes("Hotel")) return <Hotel className="w-4 h-4" />;
-    if (label.includes("Apartment")) return <Building2 className="w-4 h-4" />;
-    if (label.includes("Villa")) return <Castle className="w-4 h-4" />;
-    if (label.includes("Resort")) return <Waves className="w-4 h-4" />;
-    return <Home className="w-4 h-4" />;
-  };
-
-  const getFacilityIcon = (label: string) => {
-    if (label.includes("WiFi") || label.includes("Internet")) return <Wifi className="w-4 h-4" />;
-    if (label.includes("pool") || label.includes("Pool")) return <Waves className="w-4 h-4" />;
-    if (label.includes("Car") || label.includes("park")) return <Car className="w-4 h-4" />;
-    if (label.includes("Gym") || label.includes("fitness")) return <Dumbbell className="w-4 h-4" />;
-    if (label.includes("Restaurant")) return <Utensils className="w-4 h-4" />;
-    if (label.includes("Air") || label.includes("conditioning")) return <Wind className="w-4 h-4" />;
-    if (label.includes("TV")) return <Tv className="w-4 h-4" />;
-    if (label.includes("Coffee")) return <Coffee className="w-4 h-4" />;
-    if (label.includes("Bathtub") || label.includes("Bath")) return <Bath className="w-4 h-4" />;
-    return null;
   };
 
   const renderStarRating = (stars: number) => {
@@ -206,357 +138,282 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     title, 
     sectionKey, 
     items, 
-    showIcons = false,
     isStarRating = false,
-    maxInitialItems = 5 
+    maxInitialItems = 10 
   }: { 
     title: string; 
     sectionKey: string; 
-    items: { label: string; count: string }[];
-    showIcons?: boolean;
+    items: { label: string; count?: string }[];
     isStarRating?: boolean;
     maxInitialItems?: number;
   }) => {
-    const isExpanded = expandedSections[sectionKey];
     const showMore = showMoreSections[sectionKey];
     const displayItems = showMore ? items : items.slice(0, maxInitialItems);
     const hasMore = items.length > maxInitialItems;
-    
-    // Count selected in this section
-    const sectionSelectedCount = items.filter(item => selectedFilters[item.label]).length;
 
     return (
-      <Collapsible open={isExpanded} onOpenChange={() => toggleSection(sectionKey)}>
-        <CollapsibleTrigger className="flex items-center justify-between w-full py-2 group">
-          <div className="flex items-center gap-2">
-            <h4 className="font-semibold text-foreground text-sm">
-              {title}
-            </h4>
-            {sectionSelectedCount > 0 && (
-              <Badge variant="secondary" className="h-5 px-1.5 text-xs font-medium">
-                {sectionSelectedCount}
-              </Badge>
-            )}
-          </div>
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          )}
-        </CollapsibleTrigger>
+      <div className="py-4 border-b border-border last:border-b-0">
+        <h4 className="font-bold text-foreground text-sm mb-3">
+          {title}
+        </h4>
         
-        <CollapsibleContent className="pt-2">
-          <div className="space-y-1">
-            {displayItems.map((item, itemIndex) => {
-              const filterKey = item.label;
-              const isChecked = selectedFilters[filterKey] || false;
-              const stars = isStarRating ? parseInt(item.label) : 0;
-              
-              return (
-                <label
-                  key={itemIndex}
-                  className={`flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors ${
-                    isChecked 
-                      ? "bg-primary/10" 
-                      : "hover:bg-muted/50"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Checkbox
-                      checked={isChecked}
-                      onCheckedChange={() => handleFilterToggle(filterKey)}
-                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                    />
-                    {isStarRating ? (
-                      renderStarRating(stars)
-                    ) : showIcons ? (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        {getFacilityIcon(item.label) || getPropertyIcon(item.label)}
-                        <span className="text-sm text-foreground">{item.label}</span>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-foreground">{item.label}</span>
-                    )}
-                  </div>
-                  <span className="text-xs text-muted-foreground font-medium">{item.count}</span>
-                </label>
-              );
-            })}
-          </div>
-          
-          {hasMore && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full mt-2 text-primary hover:text-primary hover:bg-primary/5"
-              onClick={() => toggleShowMore(sectionKey)}
-            >
-              {showMore ? (
-                <>
-                  <ChevronUp className="w-4 h-4 mr-1" />
-                  Thu gọn
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4 mr-1" />
-                  Xem thêm {items.length - maxInitialItems} mục
-                </>
-              )}
-            </Button>
-          )}
-        </CollapsibleContent>
-      </Collapsible>
+        <div className="space-y-2">
+          {displayItems.map((item, itemIndex) => {
+            const filterKey = item.label;
+            const isChecked = selectedFilters[filterKey] || false;
+            const stars = isStarRating ? parseInt(item.label) : 0;
+            
+            return (
+              <label
+                key={itemIndex}
+                className="flex items-center gap-2.5 cursor-pointer group"
+              >
+                <Checkbox
+                  checked={isChecked}
+                  onCheckedChange={() => handleFilterToggle(filterKey)}
+                  className="rounded border-muted-foreground/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                {isStarRating ? (
+                  renderStarRating(stars)
+                ) : (
+                  <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                    {item.label}
+                  </span>
+                )}
+              </label>
+            );
+          })}
+        </div>
+        
+        {hasMore && (
+          <Button
+            variant="link"
+            size="sm"
+            className="p-0 h-auto mt-2 text-primary font-normal"
+            onClick={() => toggleShowMore(sectionKey)}
+          >
+            {showMore ? (
+              <>
+                <ChevronUp className="w-4 h-4 mr-1" />
+                Thu gọn
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4 mr-1" />
+                Xem thêm
+              </>
+            )}
+          </Button>
+        )}
+      </div>
     );
   };
 
   const filterSections = {
-    popular: {
-      title: "Bộ lọc phổ biến",
+    yourFilters: {
+      title: "Your filters",
       items: [
-        { label: "Free cancellation", count: "5,694" },
-        { label: "Pay at the hotel", count: "3,250" },
-        { label: "Breakfast included", count: "330" },
-        { label: "Free WiFi", count: "6,389" },
-        { label: "Swimming pool", count: "1,833" },
-        { label: "Air conditioning", count: "5,116" },
+        { label: "Free cancellation" },
+        { label: "Air conditioning" },
+      ],
+    },
+    popular: {
+      title: "Popular filters for Ho Chi Minh City",
+      items: [
+        { label: "Book without credit card" },
+        { label: "Free cancellation" },
+        { label: "Pay now" },
+        { label: "Pay at the hotel" },
+        { label: "Refrigerator" },
+        { label: "Air conditioning" },
+        { label: "Guest rating: 6+ Good" },
+        { label: "Location: 7+ Very good" },
+        { label: "Breakfast included" },
+        { label: "Swimming pool" },
+        { label: "Free WiFi" },
+        { label: "Spa" },
       ],
     },
     reviewScore: {
-      title: "Điểm đánh giá",
+      title: "Guest rating",
       items: [
-        { label: "Wonderful: 9+", count: "1,081" },
-        { label: "Very Good: 8+", count: "2,148" },
-        { label: "Good: 7+", count: "2,675" },
-        { label: "Pleasant: 6+", count: "2,867" },
+        { label: "Wonderful: 9+" },
+        { label: "Very Good: 8+" },
+        { label: "Good: 7+" },
+        { label: "Pleasant: 6+" },
       ],
     },
     starRating: {
-      title: "Xếp hạng sao",
+      title: "Star rating",
       items: [
-        { label: "5 stars", count: "76" },
-        { label: "4 stars", count: "1,291" },
-        { label: "3 stars", count: "874" },
-        { label: "2 stars", count: "144" },
-        { label: "1 star", count: "47" },
+        { label: "5 stars" },
+        { label: "4 stars" },
+        { label: "3 stars" },
+        { label: "2 stars" },
+        { label: "1 star" },
       ],
     },
     propertyType: {
-      title: "Loại chỗ nghỉ",
+      title: "Property type",
       items: [
-        { label: "Hotels", count: "3,323" },
-        { label: "Apartments", count: "3,409" },
-        { label: "Homestays", count: "146" },
-        { label: "Serviced apartment", count: "476" },
-        { label: "Guesthouse/B&B", count: "145" },
-        { label: "Hostel", count: "57" },
-        { label: "Villa", count: "76" },
-        { label: "Resort", count: "11" },
-      ],
-    },
-    neighborhood: {
-      title: "Khu vực",
-      items: [
-        { label: "Quận 1", count: "887" },
-        { label: "Old Quarter (Hà Nội)", count: "720" },
-        { label: "Quận 7", count: "512" },
-        { label: "Ba Đình (Hà Nội)", count: "398" },
-        { label: "Phú Mỹ Hưng", count: "280" },
-        { label: "Thảo Điền", count: "195" },
-        { label: "Phạm Ngũ Lão", count: "312" },
+        { label: "Hotels" },
+        { label: "Apartments" },
+        { label: "Homestays" },
+        { label: "Serviced apartment" },
+        { label: "Guesthouse/B&B" },
+        { label: "Hostel" },
+        { label: "Villa" },
+        { label: "Resort" },
       ],
     },
     payment: {
-      title: "Tùy chọn thanh toán",
+      title: "Payment options",
       items: [
-        { label: "Free cancellation", count: "5,694" },
-        { label: "Pay at the hotel", count: "3,250" },
-        { label: "Book now, pay later", count: "3,487" },
-        { label: "Book without credit card", count: "1,985" },
-        { label: "No prepayment needed", count: "3,250" },
+        { label: "Free cancellation" },
+        { label: "Pay at the hotel" },
+        { label: "Book now, pay later" },
+        { label: "Book without credit card" },
+        { label: "No prepayment needed" },
       ],
     },
     facilities: {
-      title: "Tiện nghi chỗ nghỉ",
+      title: "Property facilities",
       items: [
-        { label: "Swimming pool", count: "1,833" },
-        { label: "Internet", count: "6,389" },
-        { label: "Car park", count: "3,422" },
-        { label: "Airport transfer", count: "1,374" },
-        { label: "Gym/fitness", count: "1,745" },
-        { label: "Front desk [24-hour]", count: "2,291" },
-        { label: "Family/child friendly", count: "2,425" },
-        { label: "Non-smoking", count: "2,130" },
-        { label: "Spa/sauna", count: "463" },
-        { label: "Restaurants", count: "1,111" },
+        { label: "Swimming pool" },
+        { label: "Internet" },
+        { label: "Car park" },
+        { label: "Airport transfer" },
+        { label: "Gym/fitness" },
+        { label: "Front desk [24-hour]" },
+        { label: "Family/child friendly" },
+        { label: "Non-smoking" },
+        { label: "Spa/sauna" },
+        { label: "Restaurants" },
       ],
     },
     amenities: {
-      title: "Tiện nghi phòng",
+      title: "Room amenities",
       items: [
-        { label: "Air conditioning", count: "5,116" },
-        { label: "TV", count: "4,836" },
-        { label: "Washing machine", count: "3,449" },
-        { label: "Ironing facilities", count: "2,564" },
-        { label: "Refrigerator", count: "2,186" },
-        { label: "Balcony/terrace", count: "1,997" },
-        { label: "Internet access", count: "1,543" },
-        { label: "Bathtub", count: "983" },
-        { label: "Kitchen", count: "793" },
-        { label: "Coffee/tea maker", count: "672" },
+        { label: "Air conditioning" },
+        { label: "TV" },
+        { label: "Washing machine" },
+        { label: "Ironing facilities" },
+        { label: "Refrigerator" },
+        { label: "Balcony/terrace" },
+        { label: "Internet access" },
+        { label: "Bathtub" },
+        { label: "Kitchen" },
+        { label: "Coffee/tea maker" },
       ],
     },
   };
 
   return (
-    <div className="bg-card rounded-xl border shadow-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2">
-          <h3 className="font-bold text-foreground text-lg">Bộ lọc</h3>
-          {selectedCount > 0 && (
-            <Badge className="bg-primary text-primary-foreground">
-              {selectedCount}
-            </Badge>
-          )}
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleResetAll}
-          className="text-primary hover:text-primary hover:bg-primary/5 gap-1.5"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          Đặt lại
-        </Button>
-      </div>
-
-      {/* Selected Filters Badges */}
-      {selectedFilterLabels.length > 0 && (
-        <div className="p-4 border-b bg-muted/30">
-          <p className="text-xs text-muted-foreground mb-2 font-medium">Đang lọc theo:</p>
-          <div className="flex flex-wrap gap-1.5">
-            {selectedFilterLabels.slice(0, 5).map((label) => (
-              <Badge
-                key={label}
-                variant="secondary"
-                className="cursor-pointer gap-1 hover:bg-destructive/10 hover:text-destructive transition-colors text-xs"
-                onClick={() => handleFilterToggle(label)}
-              >
-                {label.length > 15 ? label.substring(0, 15) + "..." : label}
-                <X className="w-3 h-3" />
-              </Badge>
-            ))}
-            {selectedFilterLabels.length > 5 && (
-              <Badge variant="outline" className="text-xs">
-                +{selectedFilterLabels.length - 5} khác
-              </Badge>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Search Input */}
-      <div className="p-4 border-b">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Tìm theo tên khách sạn..."
-            className="pl-9 bg-muted/50 border-0 focus-visible:ring-1"
-            value={textSearch}
-            onChange={(e) => handleTextSearchChange(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <ScrollArea className="h-[calc(100vh-320px)]">
-        <div className="p-4 space-y-1">
-          {/* Budget Slider */}
-          <div className="pb-4 mb-2 border-b">
-            <h4 className="font-semibold text-foreground text-sm mb-4">Ngân sách (mỗi đêm)</h4>
+    <div className="bg-card">
+      <ScrollArea className="h-[calc(100vh-180px)]">
+        <div className="pr-4">
+          {/* Budget Section */}
+          <div className="py-4 border-b border-border">
+            <h4 className="font-bold text-foreground text-sm mb-4">
+              Your budget (per night)
+            </h4>
             
-            <div className="px-1">
+            <div className="px-1 mb-4">
               <Slider
                 value={budget}
                 onValueChange={handleBudgetChange}
                 min={0}
-                max={4000000}
+                max={120000000}
                 step={100000}
-                className="mb-6"
+                className="mb-4"
               />
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="flex-1">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Tối thiểu</span>
-                <div className="mt-1 px-3 py-2 bg-muted/50 rounded-lg text-sm font-medium">
-                  ₫{budget[0].toLocaleString("vi-VN")}
+                <span className="text-xs text-muted-foreground font-medium uppercase">MIN</span>
+                <div className="flex items-center border rounded mt-1">
+                  <span className="px-2 text-sm text-muted-foreground">₫</span>
+                  <Input
+                    type="text"
+                    value={parseInt(minBudget).toLocaleString('vi-VN')}
+                    onChange={(e) => handleMinBudgetChange(e.target.value)}
+                    className="border-0 h-8 px-1 text-sm focus-visible:ring-0"
+                  />
                 </div>
               </div>
-              <div className="text-muted-foreground mt-4">—</div>
+              <div className="text-muted-foreground mt-4">- - - -</div>
               <div className="flex-1">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Tối đa</span>
-                <div className="mt-1 px-3 py-2 bg-muted/50 rounded-lg text-sm font-medium">
-                  {budget[1] >= 4000000 ? "₫4,000,000+" : `₫${budget[1].toLocaleString("vi-VN")}`}
+                <span className="text-xs text-muted-foreground font-medium uppercase">MAX</span>
+                <div className="flex items-center border rounded mt-1">
+                  <span className="px-2 text-sm text-muted-foreground">₫</span>
+                  <Input
+                    type="text"
+                    value={parseInt(maxBudget).toLocaleString('vi-VN')}
+                    onChange={(e) => handleMaxBudgetChange(e.target.value)}
+                    className="border-0 h-8 px-1 text-sm focus-visible:ring-0"
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Filter Sections */}
-          <div className="space-y-1 divide-y divide-border">
-            <FilterSection 
-              title={filterSections.popular.title} 
-              sectionKey="popular" 
-              items={filterSections.popular.items}
-              showIcons
-            />
-            
-            <FilterSection 
-              title={filterSections.reviewScore.title} 
-              sectionKey="reviewScore" 
-              items={filterSections.reviewScore.items}
-            />
-            
-            <FilterSection 
-              title={filterSections.starRating.title} 
-              sectionKey="starRating" 
-              items={filterSections.starRating.items}
-              isStarRating
-            />
-            
-            <FilterSection 
-              title={filterSections.propertyType.title} 
-              sectionKey="propertyType" 
-              items={filterSections.propertyType.items}
-              showIcons
-            />
-            
-            <FilterSection 
-              title={filterSections.neighborhood.title} 
-              sectionKey="neighborhood" 
-              items={filterSections.neighborhood.items}
-            />
-            
-            <FilterSection 
-              title={filterSections.payment.title} 
-              sectionKey="payment" 
-              items={filterSections.payment.items}
-            />
-            
-            <FilterSection 
-              title={filterSections.facilities.title} 
-              sectionKey="facilities" 
-              items={filterSections.facilities.items}
-              showIcons
-            />
-            
-            <FilterSection 
-              title={filterSections.amenities.title} 
-              sectionKey="amenities" 
-              items={filterSections.amenities.items}
-              showIcons
-            />
-          </div>
+          {/* Your Filters */}
+          <FilterSection 
+            title={filterSections.yourFilters.title} 
+            sectionKey="yourFilters" 
+            items={filterSections.yourFilters.items}
+          />
+
+          {/* Popular Filters */}
+          <FilterSection 
+            title={filterSections.popular.title} 
+            sectionKey="popular" 
+            items={filterSections.popular.items}
+          />
+          
+          {/* Guest Rating */}
+          <FilterSection 
+            title={filterSections.reviewScore.title} 
+            sectionKey="reviewScore" 
+            items={filterSections.reviewScore.items}
+          />
+          
+          {/* Star Rating */}
+          <FilterSection 
+            title={filterSections.starRating.title} 
+            sectionKey="starRating" 
+            items={filterSections.starRating.items}
+            isStarRating
+          />
+          
+          {/* Property Type */}
+          <FilterSection 
+            title={filterSections.propertyType.title} 
+            sectionKey="propertyType" 
+            items={filterSections.propertyType.items}
+          />
+          
+          {/* Payment Options */}
+          <FilterSection 
+            title={filterSections.payment.title} 
+            sectionKey="payment" 
+            items={filterSections.payment.items}
+          />
+          
+          {/* Property Facilities */}
+          <FilterSection 
+            title={filterSections.facilities.title} 
+            sectionKey="facilities" 
+            items={filterSections.facilities.items}
+          />
+          
+          {/* Room Amenities */}
+          <FilterSection 
+            title={filterSections.amenities.title} 
+            sectionKey="amenities" 
+            items={filterSections.amenities.items}
+          />
         </div>
       </ScrollArea>
     </div>
