@@ -7,8 +7,31 @@ import Index from "./pages/Index";
 import SearchResults from "./pages/SearchResults";
 import HotelDetail from "./pages/HotelDetail";
 import NotFound from "./pages/NotFound";
+import ComparisonFloatingBar from "./components/ComparisonFloatingBar";
+import { useRoomComparison } from "./hooks/use-room-comparison";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const { rooms, removeRoom, clearAll } = useRoomComparison();
+
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/search" element={<SearchResults />} />
+        <Route path="/hotel/:id" element={<HotelDetail />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <ComparisonFloatingBar
+        rooms={rooms}
+        onRemove={removeRoom}
+        onClearAll={clearAll}
+      />
+    </>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -16,13 +39,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/hotel/:id" element={<HotelDetail />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
