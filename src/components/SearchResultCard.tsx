@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Heart, MapPin, Star, ChevronRight, CreditCard, Award } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useFavorites } from "@/hooks/use-favorites";
+import { toast } from "sonner";
 
 interface SearchResultCardProps {
   id: number;
@@ -55,14 +55,45 @@ const SearchResultCard = ({
   guestReview,
 }: SearchResultCardProps) => {
   const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  
+  const isHotelFavorite = isFavorite(id);
   
   const getRatingColor = (score: number) => {
     if (score >= 8) return "text-primary";
     if (score >= 7) return "text-blue-600";
     return "text-foreground";
+  };
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toggleFavorite({
+      id,
+      name,
+      image,
+      location,
+      rating,
+      newPrice,
+      starRating: starRating || 3,
+    });
+    
+    if (!isHotelFavorite) {
+      toast.success("Added to favorites", {
+        description: name,
+        action: {
+          label: "View",
+          onClick: () => {},
+        },
+      });
+    } else {
+      toast.info("Removed from favorites", {
+        description: name,
+      });
+    }
   };
 
   return (
@@ -109,17 +140,13 @@ const SearchResultCard = ({
           {/* Favorite Button */}
           <button
             className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-              isFavorite 
+              isHotelFavorite 
                 ? "bg-destructive text-white" 
                 : "bg-white/90 hover:bg-white text-muted-foreground hover:text-destructive"
             }`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsFavorite(!isFavorite);
-            }}
+            onClick={handleFavoriteClick}
           >
-            <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
+            <Heart className={`w-4 h-4 ${isHotelFavorite ? "fill-current" : ""}`} />
           </button>
 
           {/* Navigation Arrow */}
@@ -282,5 +309,7 @@ const SearchResultCard = ({
     </div>
   );
 };
+
+import { useState } from "react";
 
 export default SearchResultCard;
