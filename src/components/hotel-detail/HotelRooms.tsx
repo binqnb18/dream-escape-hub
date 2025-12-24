@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -19,12 +18,15 @@ import {
   Eye,
   Maximize2,
   Check,
-  X,
-  GitCompare,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import RoomComparison from "./RoomComparison";
 import { toast } from "@/hooks/use-toast";
+import { useRoomComparison, ComparisonRoom } from "@/hooks/use-room-comparison";
+import hotelImage1 from "@/assets/hotel-1.jpg";
+import hotelImage2 from "@/assets/hotel-2.jpg";
+import hotelImage3 from "@/assets/hotel-3.jpg";
 
 interface Room {
   id: string;
@@ -45,7 +47,12 @@ interface Room {
   view?: string;
 }
 
-const rooms: Room[] = [
+interface HotelRoomsProps {
+  hotelId?: string;
+  hotelName?: string;
+}
+
+const roomsData: Room[] = [
   {
     id: "1",
     name: "Phòng Deluxe Hướng Biển",
@@ -102,10 +109,15 @@ const rooms: Room[] = [
   },
 ];
 
-const HotelRooms = () => {
+const roomImages: Record<string, string> = {
+  "1": hotelImage1,
+  "2": hotelImage2,
+  "3": hotelImage3,
+};
+
+const HotelRooms = ({ hotelId = "1", hotelName = "Vinpearl Resort & Spa Nha Trang" }: HotelRoomsProps) => {
   const [selectedRooms, setSelectedRooms] = useState<Record<string, number>>({});
-  const [compareRooms, setCompareRooms] = useState<string[]>([]);
-  const [showComparison, setShowComparison] = useState(false);
+  const { addRoom, removeRoom, isInComparison, canAddMore } = useRoomComparison();
 
   const handleRoomSelect = (roomId: string, count: string) => {
     setSelectedRooms((prev) => ({
@@ -114,74 +126,54 @@ const HotelRooms = () => {
     }));
   };
 
-  const toggleCompareRoom = (roomId: string) => {
-    setCompareRooms((prev) => {
-      if (prev.includes(roomId)) {
-        return prev.filter((id) => id !== roomId);
-      }
-      if (prev.length >= 3) {
+  const handleToggleComparison = (room: Room) => {
+    if (isInComparison(room.id, hotelId)) {
+      removeRoom(room.id, hotelId);
+      toast({
+        title: "Đã xóa khỏi so sánh",
+        description: `${room.name} đã được xóa khỏi danh sách so sánh`,
+      });
+    } else {
+      if (!canAddMore) {
         toast({
           title: "Giới hạn so sánh",
-          description: "Bạn chỉ có thể so sánh tối đa 3 phòng",
+          description: "Bạn chỉ có thể so sánh tối đa 4 phòng",
           variant: "destructive",
         });
-        return prev;
+        return;
       }
-      return [...prev, roomId];
-    });
-  };
-
-  const handleCompare = () => {
-    if (compareRooms.length < 2) {
+      
+      const comparisonRoom: ComparisonRoom = {
+        id: room.id,
+        hotelId,
+        hotelName,
+        roomName: room.name,
+        price: room.price,
+        originalPrice: room.originalPrice,
+        size: room.size,
+        maxGuests: room.maxGuests,
+        bedType: room.bedType,
+        view: room.view,
+        amenities: room.amenities,
+        features: room.features,
+        image: roomImages[room.id],
+      };
+      
+      addRoom(comparisonRoom);
       toast({
-        title: "Chọn thêm phòng",
-        description: "Vui lòng chọn ít nhất 2 phòng để so sánh",
-        variant: "destructive",
+        title: "Đã thêm vào so sánh",
+        description: `${room.name} đã được thêm vào danh sách so sánh`,
       });
-      return;
     }
-    setShowComparison(true);
   };
-
-  const roomsToCompare = rooms.filter((room) => compareRooms.includes(room.id));
-
-  if (showComparison) {
-    return (
-      <RoomComparison
-        rooms={roomsToCompare}
-        hotelName="Vinpearl Resort & Spa Nha Trang"
-        onClose={() => setShowComparison(false)}
-        onSelectRoom={(roomId) => {
-          setShowComparison(false);
-          toast({
-            title: "Đã chọn phòng",
-            description: `Bạn đã chọn phòng ${rooms.find((r) => r.id === roomId)?.name}`,
-          });
-        }}
-      />
-    );
-  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Phòng nghỉ có sẵn</h2>
-        <div className="flex items-center gap-3">
-          {compareRooms.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCompare}
-              className="flex items-center gap-2"
-            >
-              <GitCompare className="h-4 w-4" />
-              So sánh ({compareRooms.length})
-            </Button>
-          )}
-          <Badge variant="outline" className="text-primary border-primary">
-            Đảm bảo giá tốt nhất
-          </Badge>
-        </div>
+        <Badge variant="outline" className="text-primary border-primary">
+          Đảm bảo giá tốt nhất
+        </Badge>
       </div>
 
       {/* Date/Guest selector bar */}
@@ -211,32 +203,49 @@ const HotelRooms = () => {
         </div>
 
         {/* Room Rows */}
-        {rooms.map((room, index) => (
-          <div
-            key={room.id}
-            className={cn(
-              "grid md:grid-cols-12 gap-4 p-4 border-b last:border-b-0",
-              index % 2 === 1 && "bg-muted/20"
-            )}
-          >
+        {roomsData.map((room, index) => {
+          const inComparison = isInComparison(room.id, hotelId);
+          return (
+            <div
+              key={room.id}
+              className={cn(
+                "grid md:grid-cols-12 gap-4 p-4 border-b last:border-b-0",
+                index % 2 === 1 && "bg-muted/20"
+              )}
+            >
             {/* Room Type */}
             <div className="md:col-span-4 space-y-3">
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id={`compare-${room.id}`}
-                  checked={compareRooms.includes(room.id)}
-                  onCheckedChange={() => toggleCompareRoom(room.id)}
-                  className="mt-1"
-                />
+              <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-semibold text-primary hover:underline cursor-pointer">
                     {room.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">{room.bedType}</p>
                 </div>
+                <Button
+                  variant={inComparison ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleToggleComparison(room)}
+                  className={cn(
+                    "flex items-center gap-1 text-xs",
+                    inComparison && "bg-primary"
+                  )}
+                >
+                  {inComparison ? (
+                    <>
+                      <Minus className="h-3 w-3" />
+                      Đã thêm
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-3 w-3" />
+                      So sánh
+                    </>
+                  )}
+                </Button>
               </div>
               
-              <div className="flex flex-wrap gap-2 text-xs ml-7">
+              <div className="flex flex-wrap gap-2 text-xs">
                 <span className="flex items-center gap-1 bg-muted px-2 py-1 rounded">
                   <Maximize2 className="h-3 w-3" /> {room.size} m²
                 </span>
@@ -335,8 +344,9 @@ const HotelRooms = () => {
                 Chỉ còn {room.available} phòng!
               </p>
             </div>
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
