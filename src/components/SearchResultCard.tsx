@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, MapPin, Star, ChevronRight, CreditCard, Award } from "lucide-react";
+import { Heart, MapPin, Star, ChevronRight, ChevronLeft, CreditCard, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useFavorites } from "@/hooks/use-favorites";
 import { toast } from "sonner";
@@ -7,6 +8,7 @@ import { toast } from "sonner";
 interface SearchResultCardProps {
   id: number;
   image: string;
+  images?: string[];
   name: string;
   location: string;
   distance?: string;
@@ -34,6 +36,7 @@ interface SearchResultCardProps {
 const SearchResultCard = ({
   id,
   image,
+  images = [],
   name,
   location,
   distance,
@@ -58,7 +61,9 @@ const SearchResultCard = ({
   const { isFavorite, toggleFavorite } = useFavorites();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
+  const allImages = images.length > 0 ? images : [image];
   const isHotelFavorite = isFavorite(id);
   
   const getRatingColor = (score: number) => {
@@ -84,10 +89,6 @@ const SearchResultCard = ({
     if (!isHotelFavorite) {
       toast.success("Added to favorites", {
         description: name,
-        action: {
-          label: "View",
-          onClick: () => {},
-        },
       });
     } else {
       toast.info("Removed from favorites", {
@@ -96,22 +97,33 @@ const SearchResultCard = ({
     }
   };
 
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <div
       className="bg-card rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
       onClick={() => navigate(`/hotel/${id}`)}
     >
-      <div className="flex">
+      {/* Desktop Layout */}
+      <div className="hidden md:flex">
         {/* Image Section */}
         <div className="relative w-64 h-[220px] flex-shrink-0 overflow-hidden bg-muted">
-          {/* Placeholder while loading */}
           {!imageLoaded && !imageError && (
             <div className="absolute inset-0 bg-muted animate-pulse" />
           )}
           
-          {/* Image */}
           <img
-            src={image}
+            src={allImages[currentImageIndex]}
             alt={name}
             className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
               imageLoaded ? "opacity-100" : "opacity-0"
@@ -120,7 +132,6 @@ const SearchResultCard = ({
             onError={() => setImageError(true)}
           />
           
-          {/* Error fallback */}
           {imageError && (
             <div className="absolute inset-0 bg-muted flex items-center justify-center">
               <div className="text-center text-muted-foreground">
@@ -130,14 +141,12 @@ const SearchResultCard = ({
             </div>
           )}
           
-          {/* Badge - Top Left */}
           {badge && (
             <Badge className="absolute top-3 left-3 bg-teal-500 text-white font-medium text-xs rounded-sm">
               {badge}
             </Badge>
           )}
           
-          {/* Favorite Button */}
           <button
             className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
               isHotelFavorite 
@@ -149,33 +158,36 @@ const SearchResultCard = ({
             <Heart className={`w-4 h-4 ${isHotelFavorite ? "fill-current" : ""}`} />
           </button>
 
-          {/* Navigation Arrow */}
-          <button 
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </button>
+          {/* Image Navigation Arrows */}
+          {allImages.length > 1 && (
+            <>
+              <button 
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <button 
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </>
+          )}
           
-          {/* Image Counter */}
           <div className="absolute bottom-3 left-3 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
-            1/10
+            {currentImageIndex + 1}/{allImages.length > 0 ? allImages.length : 10}
           </div>
         </div>
 
-        {/* Content Section */}
+        {/* Content Section - Desktop */}
         <div className="flex-1 p-4 flex">
-          {/* Left Content - Hotel Info */}
           <div className="flex-1 space-y-2">
-            {/* Title & Star Rating */}
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-primary hover:underline leading-tight">
-                  {name}
-                </h3>
-              </div>
-              
-              {/* Star Rating */}
+              <h3 className="text-base font-bold text-primary hover:underline leading-tight">
+                {name}
+              </h3>
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: starRating }).map((_, i) => (
                   <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
@@ -183,23 +195,19 @@ const SearchResultCard = ({
               </div>
             </div>
             
-            {/* Location */}
             <div className="flex items-start gap-1.5 text-sm">
               <MapPin className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
               <span className="text-primary font-medium">{location}</span>
             </div>
             
-            {/* Distance */}
             {distance && (
-              <p className="text-xs text-muted-foreground leading-relaxed">{distance}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{distance}</p>
             )}
 
-            {/* Booked Today */}
             {bookedToday && (
               <p className="text-xs text-destructive font-medium">{bookedToday}</p>
             )}
 
-            {/* Features - Agoda Preferred */}
             {features.includes("Agoda Preferred") && (
               <div className="flex items-center gap-1.5">
                 <Award className="w-4 h-4 text-green-600" />
@@ -207,24 +215,13 @@ const SearchResultCard = ({
               </div>
             )}
 
-            {/* Guest Review Quote */}
-            {guestReview ? (
-              <div className="flex items-start gap-1.5 pt-1">
-                <span className="text-lg text-muted-foreground">"</span>
-                <p className="text-xs text-muted-foreground italic line-clamp-2">
-                  {guestReview}
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-start gap-1.5 pt-1">
-                <span className="text-lg text-muted-foreground">"</span>
-                <p className="text-xs text-muted-foreground italic line-clamp-2">
-                  "If I was in HCM city again I would be happy to stay here."
-                </p>
-              </div>
-            )}
+            <div className="flex items-start gap-1.5 pt-1">
+              <span className="text-lg text-muted-foreground">"</span>
+              <p className="text-xs text-muted-foreground italic line-clamp-2">
+                {guestReview || "If I was in HCM city again I would be happy to stay here."}
+              </p>
+            </div>
             
-            {/* Perks Row */}
             {perks && perks.length > 0 && (
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
                 {perks.map((perk, index) => (
@@ -244,9 +241,7 @@ const SearchResultCard = ({
             )}
           </div>
 
-          {/* Right Content - Rating & Price */}
           <div className="w-44 flex flex-col items-end justify-between pl-4 border-l border-border">
-            {/* Rating Section */}
             <div className="text-right space-y-1">
               <p className={`text-base font-bold ${getRatingColor(rating)}`}>
                 {rating} {reviewLabel}
@@ -259,16 +254,13 @@ const SearchResultCard = ({
               )}
             </div>
 
-            {/* Price Section */}
             <div className="text-right space-y-1">
-              {/* Limited Badge */}
               {limitedText && (
                 <Badge className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5">
                   {limitedText}
                 </Badge>
               )}
 
-              {/* Coupon Applied */}
               {couponApplied && (
                 <div className="flex items-center gap-1 justify-end text-xs">
                   <span className="w-4 h-4 rounded-full bg-destructive text-white flex items-center justify-center text-[10px] font-bold">1</span>
@@ -276,7 +268,6 @@ const SearchResultCard = ({
                 </div>
               )}
 
-              {/* Old Price with Discount */}
               {oldPrice && discount && (
                 <div className="flex items-center gap-2 justify-end">
                   <span className="text-sm line-through text-muted-foreground decoration-destructive">
@@ -288,17 +279,14 @@ const SearchResultCard = ({
                 </div>
               )}
 
-              {/* New Price */}
               <p className="text-xl font-bold text-destructive">
                 ₫{newPrice}
               </p>
 
-              {/* Price Note */}
               <p className="text-[10px] text-muted-foreground">
                 {priceNote || "Per night before taxes and fees"}
               </p>
 
-              {/* Free Cancellation highlight */}
               {perks?.some(p => p.includes("FREE") || p.includes("cancellation")) && (
                 <p className="text-xs text-green-600 font-medium">+ FREE CANCELLATION</p>
               )}
@@ -306,10 +294,153 @@ const SearchResultCard = ({
           </div>
         </div>
       </div>
+
+      {/* Mobile Layout */}
+      <div className="md:hidden">
+        {/* Image Section - Mobile */}
+        <div className="relative w-full h-48 overflow-hidden bg-muted">
+          {!imageLoaded && !imageError && (
+            <div className="absolute inset-0 bg-muted animate-pulse" />
+          )}
+          
+          <img
+            src={allImages[currentImageIndex]}
+            alt={name}
+            className={`w-full h-full object-cover ${
+              imageLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+          />
+          
+          {badge && (
+            <Badge className="absolute top-3 left-3 bg-teal-500 text-white font-medium text-xs rounded-sm">
+              {badge}
+            </Badge>
+          )}
+          
+          <button
+            className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+              isHotelFavorite 
+                ? "bg-destructive text-white" 
+                : "bg-white/90 text-muted-foreground"
+            }`}
+            onClick={handleFavoriteClick}
+          >
+            <Heart className={`w-4 h-4 ${isHotelFavorite ? "fill-current" : ""}`} />
+          </button>
+
+          {/* Image Navigation - Mobile */}
+          {allImages.length > 1 && (
+            <>
+              <button 
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-md"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <button 
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-md"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </>
+          )}
+          
+          <div className="absolute bottom-3 left-3 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
+            {currentImageIndex + 1}/{allImages.length > 0 ? allImages.length : 10}
+          </div>
+
+          {limitedText && (
+            <Badge className="absolute bottom-3 right-3 bg-destructive text-destructive-foreground text-[10px] font-bold">
+              {limitedText}
+            </Badge>
+          )}
+        </div>
+
+        {/* Content Section - Mobile */}
+        <div className="p-3 space-y-2">
+          {/* Title & Rating Row */}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-bold text-primary leading-tight line-clamp-2">
+                {name}
+              </h3>
+              <div className="flex items-center gap-0.5 mt-1">
+                {Array.from({ length: starRating }).map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <p className={`text-sm font-bold ${getRatingColor(rating)}`}>
+                {rating}
+              </p>
+              <p className="text-[10px] text-muted-foreground">{reviewCount}</p>
+            </div>
+          </div>
+          
+          {/* Location */}
+          <div className="flex items-start gap-1 text-xs">
+            <MapPin className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
+            <span className="text-primary font-medium line-clamp-1">{location}</span>
+          </div>
+
+          {bookedToday && (
+            <p className="text-xs text-destructive font-medium">{bookedToday}</p>
+          )}
+
+          {features.includes("Agoda Preferred") && (
+            <div className="flex items-center gap-1">
+              <Award className="w-3 h-3 text-green-600" />
+              <span className="text-[10px] text-green-700 font-medium">Agoda Preferred</span>
+            </div>
+          )}
+          
+          {/* Perks */}
+          {perks && perks.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              {perks.slice(0, 2).map((perk, index) => (
+                <span
+                  key={index}
+                  className={`text-[10px] ${
+                    perk.includes("FREE") || perk.includes("cancellation") 
+                      ? "text-green-600 font-medium" 
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {perk}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Price Row */}
+          <div className="flex items-end justify-between pt-2 border-t border-border">
+            <div className="space-y-0.5">
+              {couponApplied && (
+                <div className="flex items-center gap-1 text-[10px]">
+                  <span className="w-3 h-3 rounded-full bg-destructive text-white flex items-center justify-center text-[8px] font-bold">1</span>
+                  <span className="text-green-600 font-medium">{couponApplied}</span>
+                </div>
+              )}
+              {oldPrice && discount && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs line-through text-muted-foreground">₫{oldPrice}</span>
+                  <span className="text-[10px] text-destructive font-bold">{discount}</span>
+                </div>
+              )}
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-bold text-destructive">₫{newPrice}</p>
+              <p className="text-[10px] text-muted-foreground">per night</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
-
-import { useState } from "react";
 
 export default SearchResultCard;
