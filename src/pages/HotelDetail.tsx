@@ -98,8 +98,9 @@ const HotelDetail = () => {
                   name: hotelData.name,
                   image: hotelData.images[0],
                   location: hotelData.address,
-                  price: hotelData.pricePerNight,
+                  newPrice: hotelData.pricePerNight.toLocaleString("vi-VN"),
                   rating: hotelData.rating,
+                  starRating: hotelData.starRating,
                 })}
               >
                 <Heart className={cn("h-4 w-4", isFav && "fill-red-500 text-red-500")} />
