@@ -9,6 +9,8 @@ import HotelLocation from "@/components/hotel-detail/HotelLocation";
 import HotelFacilities from "@/components/hotel-detail/HotelFacilities";
 import HotelPolicies from "@/components/hotel-detail/HotelPolicies";
 import HotelReviews from "@/components/hotel-detail/HotelReviews";
+import HotelFAQ from "@/components/hotel-detail/HotelFAQ";
+import SimilarHotels from "@/components/hotel-detail/SimilarHotels";
 import BookingForm from "@/components/hotel-detail/BookingForm";
 import { Button } from "@/components/ui/button";
 import { Heart, Share2 } from "lucide-react";
@@ -22,6 +24,7 @@ const tabs = [
   { id: "facilities", label: "Cơ sở vật chất" },
   { id: "policies", label: "Chính sách" },
   { id: "reviews", label: "Đánh giá" },
+  { id: "faq", label: "FAQ" },
 ];
 
 // Mock hotel data
@@ -167,6 +170,14 @@ const HotelDetail = () => {
             
             <section id="reviews">
               <HotelReviews rating={hotelData.rating} reviewCount={hotelData.reviewCount} />
+            </section>
+
+            <section id="faq">
+              <HotelFAQ />
+            </section>
+
+            <section>
+              <SimilarHotels />
             </section>
           </div>
 
