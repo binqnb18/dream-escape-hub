@@ -9,8 +9,9 @@ import HotelLocation from "@/components/hotel-detail/HotelLocation";
 import HotelFacilities from "@/components/hotel-detail/HotelFacilities";
 import HotelPolicies from "@/components/hotel-detail/HotelPolicies";
 import HotelReviews from "@/components/hotel-detail/HotelReviews";
+import BookingForm from "@/components/hotel-detail/BookingForm";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Heart, Share2, Star } from "lucide-react";
+import { Heart, Share2 } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
 import { cn } from "@/lib/utils";
 
@@ -169,61 +170,17 @@ const HotelDetail = () => {
             </section>
           </div>
 
-          {/* Right Sidebar - Booking Card */}
+          {/* Right Sidebar - Booking Form */}
           <div className="lg:col-span-1">
             <div className="sticky top-[140px]">
-              <div className="bg-card rounded-xl border shadow-lg p-6 space-y-4">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-primary">
-                    {hotelData.pricePerNight.toLocaleString("vi-VN")}₫
-                  </span>
-                  <span className="text-muted-foreground">/đêm</span>
-                </div>
-                
-                {hotelData.originalPrice && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground line-through text-sm">
-                      {hotelData.originalPrice.toLocaleString("vi-VN")}₫
-                    </span>
-                    <span className="bg-destructive/10 text-destructive text-xs font-semibold px-2 py-1 rounded">
-                      -{hotelData.discount}%
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-1 text-sm">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold">{hotelData.rating}</span>
-                  <span className="text-muted-foreground">
-                    ({hotelData.reviewCount.toLocaleString()} đánh giá)
-                  </span>
-                </div>
-
-                <div className="space-y-3 pt-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="border rounded-lg p-3">
-                      <p className="text-xs text-muted-foreground">Nhận phòng</p>
-                      <p className="font-medium">24/12/2024</p>
-                    </div>
-                    <div className="border rounded-lg p-3">
-                      <p className="text-xs text-muted-foreground">Trả phòng</p>
-                      <p className="font-medium">26/12/2024</p>
-                    </div>
-                  </div>
-                  <div className="border rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">Số khách</p>
-                    <p className="font-medium">2 người lớn, 1 phòng</p>
-                  </div>
-                </div>
-
-                <Button className="w-full" size="lg">
-                  Đặt ngay
-                </Button>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  Bạn chưa bị trừ tiền
-                </p>
-              </div>
+              <BookingForm
+                hotelName={hotelData.name}
+                pricePerNight={hotelData.pricePerNight}
+                originalPrice={hotelData.originalPrice}
+                discount={hotelData.discount}
+                rating={hotelData.rating}
+                reviewCount={hotelData.reviewCount}
+              />
             </div>
           </div>
         </div>
