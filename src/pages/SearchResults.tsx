@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import SearchFilters from "@/components/SearchFilters";
 import SearchResultCard from "@/components/SearchResultCard";
+import FavoritesList from "@/components/FavoritesList";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +12,7 @@ import {
   Calendar,
   Users,
   ChevronDown,
+  Heart,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import SkeletonLoader from "@/components/SkeletonLoader";
@@ -378,26 +380,31 @@ const SearchResults = () => {
           {/* Results Section */}
           <div className="flex-1">
             {/* Sort Tabs */}
-            <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
-              <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Sort by</span>
-              {sortOptions.map((option) => (
-                <Button
-                  key={option.key}
-                  variant={sortBy === option.key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSortBy(option.key)}
-                  className={`whitespace-nowrap ${
-                    sortBy === option.key 
-                      ? "bg-primary text-primary-foreground" 
-                      : "bg-card hover:bg-muted"
-                  } ${option.key === "hot-deals" ? "text-destructive border-destructive hover:bg-destructive/10" : ""}`}
-                >
-                  {option.label}
-                  {(option.key === "top-reviewed" || option.key === "distance") && (
-                    <ChevronDown className="w-3 h-3 ml-1" />
-                  )}
-                </Button>
-              ))}
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Sort by</span>
+                {sortOptions.map((option) => (
+                  <Button
+                    key={option.key}
+                    variant={sortBy === option.key ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSortBy(option.key)}
+                    className={`whitespace-nowrap ${
+                      sortBy === option.key 
+                        ? "bg-primary text-primary-foreground" 
+                        : "bg-card hover:bg-muted"
+                    } ${option.key === "hot-deals" ? "text-destructive border-destructive hover:bg-destructive/10" : ""}`}
+                  >
+                    {option.label}
+                    {(option.key === "top-reviewed" || option.key === "distance") && (
+                      <ChevronDown className="w-3 h-3 ml-1" />
+                    )}
+                  </Button>
+                ))}
+              </div>
+              
+              {/* Favorites Button */}
+              <FavoritesList />
             </div>
 
             {/* Mobile Filter Button */}
