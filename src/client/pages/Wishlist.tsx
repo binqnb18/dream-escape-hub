@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Header from "@/client/components/Header";
 import ClientFooter from "@/client/components/ClientFooter";
+import WishlistPromotionBanner from "@/client/components/WishlistPromotionBanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import LazyImage from "@/components/LazyImage";
+import { Download } from "lucide-react";
+import { exportToPdf, generateWishlistHtml } from "@/lib/pdf-export";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 
 interface WishlistItem {
   id: string;
@@ -109,9 +114,26 @@ const Wishlist = () => {
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast({
-      title: "Đã sao chép liên kết",
-      description: "Liên kết danh sách yêu thích đã được sao chép",
+    toast({ title: "Đã sao chép liên kết" });
+  };
+
+  const handleExportPdf = async () => {
+    const html = generateWishlistHtml({
+      userName: "Người dùng VNTravel",
+      exportDate: format(new Date(), "dd/MM/yyyy HH:mm", { locale: vi }),
+      hotels: items.map((item) => ({
+        name: item.name,
+        location: item.location,
+        rating: item.rating,
+        priceFrom: item.priceFrom,
+        savedAt: format(item.savedAt, "dd/MM/yyyy", { locale: vi }),
+      })),
+    });
+    try {
+      await exportToPdf(html, { filename: "wishlist-vntravel" });
+      toast({ title: "Đã xuất PDF thành công" });
+    } catch {
+      toast({ title: "Lỗi xuất PDF", variant: "destructive" });
     });
   };
 
