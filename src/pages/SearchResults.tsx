@@ -4,6 +4,8 @@ import Header from "@/components/Header";
 import SearchFilters from "@/components/SearchFilters";
 import SearchResultCard from "@/components/SearchResultCard";
 import FavoritesList from "@/components/FavoritesList";
+import HotelComparisonBar from "@/components/HotelComparisonBar";
+import { useHotelComparison, ComparisonHotel } from "@/hooks/use-hotel-comparison";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,6 +32,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { toast } from "sonner";
 import hotel1 from "@/assets/hotel-1.jpg";
 import hotel2 from "@/assets/hotel-2.jpg";
 import hotel3 from "@/assets/hotel-3.jpg";
@@ -45,6 +48,9 @@ const SearchResults = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [displayCount, setDisplayCount] = useState(6);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  
+  // Hotel comparison
+  const { hotels: comparisonHotels, addHotel, removeHotel, clearAll, isInComparison, canAddMore, maxHotels } = useHotelComparison();
   
   // Search bar states
   const [destination, setDestination] = useState("Ho Chi Minh City");
@@ -528,17 +534,60 @@ const SearchResults = () => {
             {/* Results */}
             {!isLoading && !error && filteredAndSortedResults.length > 0 && (
               <>
-                <div className="space-y-4">
-                  {filteredAndSortedResults.slice(0, displayCount).map((result, index) => (
-                    <ScrollReveal key={result.id} delay={index * 80}>
-                      <SearchResultCard {...result} />
-                    </ScrollReveal>
-                  ))}
+                <div className="space-y-4 pb-32">
+                  {filteredAndSortedResults.slice(0, displayCount).map((result, index) => {
+                    const handleToggleComparison = () => {
+                      if (isInComparison(result.id)) {
+                        removeHotel(result.id);
+                        toast.info("Đã xóa khỏi danh sách so sánh", {
+                          description: result.name,
+                        });
+                      } else {
+                        if (!canAddMore) {
+                          toast.error("Đã đạt giới hạn so sánh", {
+                            description: `Bạn chỉ có thể so sánh tối đa ${maxHotels} khách sạn`,
+                          });
+                          return;
+                        }
+                        const comparisonHotel: ComparisonHotel = {
+                          id: result.id,
+                          name: result.name,
+                          image: result.image,
+                          location: result.location,
+                          rating: result.rating,
+                          reviewLabel: result.reviewLabel,
+                          reviewCount: result.reviewCount,
+                          price: result.newPrice,
+                          originalPrice: result.oldPrice,
+                          discount: result.discount,
+                          starRating: result.starRating || 3,
+                          locationScore: result.locationScore,
+                          features: result.features,
+                          perks: result.perks,
+                        };
+                        addHotel(comparisonHotel);
+                        toast.success("Đã thêm vào danh sách so sánh", {
+                          description: result.name,
+                        });
+                      }
+                    };
+
+                    return (
+                      <ScrollReveal key={result.id} delay={index * 80}>
+                        <SearchResultCard 
+                          {...result} 
+                          isInComparison={isInComparison(result.id)}
+                          onToggleComparison={handleToggleComparison}
+                          canAddMore={canAddMore}
+                        />
+                      </ScrollReveal>
+                    );
+                  })}
                 </div>
 
                 {/* Load More / Pagination */}
                 {displayCount < filteredAndSortedResults.length && (
-                  <div className="mt-6 text-center">
+                  <div className="mt-6 text-center pb-32">
                     <p className="text-sm text-muted-foreground mb-3">
                       Showing {Math.min(displayCount, filteredAndSortedResults.length)} of {filteredAndSortedResults.length} properties
                     </p>
@@ -568,7 +617,7 @@ const SearchResults = () => {
                 )}
 
                 {displayCount >= filteredAndSortedResults.length && filteredAndSortedResults.length > 0 && (
-                  <div className="mt-6 text-center">
+                  <div className="mt-6 text-center pb-32">
                     <p className="text-sm text-muted-foreground">
                       Showing all {filteredAndSortedResults.length} properties
                     </p>
@@ -579,6 +628,14 @@ const SearchResults = () => {
           </div>
         </div>
       </main>
+
+      {/* Hotel Comparison Bar */}
+      <HotelComparisonBar
+        hotels={comparisonHotels}
+        onRemove={removeHotel}
+        onClearAll={clearAll}
+        maxHotels={maxHotels}
+      />
     </div>
   );
 };
