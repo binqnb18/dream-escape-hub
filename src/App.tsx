@@ -14,6 +14,7 @@ import Confirmation from "./client/pages/Confirmation";
 import MyBookings from "./client/pages/MyBookings";
 import BookingDetail from "./client/pages/BookingDetail";
 import Destinations from "./client/pages/Destinations";
+import DestinationDetail from "./client/pages/DestinationDetail";
 import ClientPromotions from "./client/pages/ClientPromotions";
 import Login from "./client/pages/Login";
 import Signup from "./client/pages/Signup";
@@ -25,6 +26,12 @@ import ClientMessages from "./client/pages/ClientMessages";
 import MapSearch from "./client/pages/MapSearch";
 import ClientInvoices from "./client/pages/ClientInvoices";
 import CompareRooms from "./client/pages/CompareRooms";
+import HelpCenter from "./client/pages/HelpCenter";
+import AboutUs from "./client/pages/AboutUs";
+import TermsPrivacy from "./client/pages/TermsPrivacy";
+import WriteReview from "./client/pages/WriteReview";
+import NotificationCenter from "./client/pages/NotificationCenter";
+import BlogDetail from "./client/pages/BlogDetail";
 
 // Shared Pages
 import NotFound from "./pages/NotFound";
