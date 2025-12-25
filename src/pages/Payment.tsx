@@ -20,6 +20,8 @@ import {
   AlertCircle,
   BadgePercent,
   Gift,
+  Timer,
+  RefreshCw,
 } from "lucide-react";
 import Header from "@/components/Header";
 import ClientFooter from "@/components/ClientFooter";
@@ -32,6 +34,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface PaymentState {
   hotelId: string;
@@ -91,19 +103,31 @@ const paymentMethods = [
   },
 ];
 
-// Countdown Timer Hook
-const useCountdown = (initialMinutes: number = 20) => {
+// Countdown Timer Hook with expiry callback
+const useCountdown = (initialMinutes: number = 20, onExpire?: () => void) => {
   const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
+  const [hasExpired, setHasExpired] = useState(false);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      if (!hasExpired) {
+        setHasExpired(true);
+        onExpire?.();
+      }
+      return;
+    }
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, hasExpired, onExpire]);
+
+  const reset = (minutes: number = initialMinutes) => {
+    setTimeLeft(minutes * 60);
+    setHasExpired(false);
+  };
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -112,6 +136,8 @@ const useCountdown = (initialMinutes: number = 20) => {
     minutes,
     seconds,
     timeLeft,
+    hasExpired,
+    reset,
     formatted: `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
   };
 };
@@ -123,7 +149,26 @@ const Payment = () => {
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const countdown = useCountdown(20);
+  const [showExpiredDialog, setShowExpiredDialog] = useState(false);
+
+  const handleCountdownExpire = useCallback(() => {
+    setShowExpiredDialog(true);
+  }, []);
+
+  const countdown = useCountdown(20, handleCountdownExpire);
+
+  const handleExtendTime = () => {
+    countdown.reset(10); // Extend 10 more minutes
+    setShowExpiredDialog(false);
+    toast.success("Đã gia hạn thêm 10 phút!", {
+      description: "Vui lòng hoàn tất thanh toán trong thời gian này.",
+    });
+  };
+
+  const handleGoBack = () => {
+    setShowExpiredDialog(false);
+    navigate(-1);
+  };
 
   const paymentState = location.state as PaymentState | undefined;
 
@@ -632,6 +677,45 @@ const Payment = () => {
       </main>
 
       <ClientFooter />
+
+      {/* Countdown Expired Dialog */}
+      <AlertDialog open={showExpiredDialog} onOpenChange={setShowExpiredDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
+                <Timer className="h-8 w-8 text-amber-600" />
+              </div>
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Thời gian giữ giá đã hết!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center space-y-2">
+              <p>
+                Giá phòng có thể thay đổi do nhu cầu cao. Bạn có muốn gia hạn thêm thời gian để hoàn tất thanh toán không?
+              </p>
+              <p className="text-amber-600 dark:text-amber-400 font-medium">
+                Gia hạn thêm 10 phút miễn phí!
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel 
+              onClick={handleGoBack}
+              className="w-full sm:w-auto"
+            >
+              Quay lại chọn phòng
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleExtendTime}
+              className="w-full sm:w-auto gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Gia hạn thêm 10 phút
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
