@@ -134,7 +134,7 @@ const Wishlist = () => {
       toast({ title: "Đã xuất PDF thành công" });
     } catch {
       toast({ title: "Lỗi xuất PDF", variant: "destructive" });
-    });
+    }
   };
 
   const getSortedItems = () => {
@@ -192,12 +192,19 @@ const Wishlist = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={handleExportPdf}>
+              <Download className="mr-2 h-4 w-4" />
+              Xuất PDF
+            </Button>
             <Button variant="outline" size="sm" onClick={handleShare}>
               <Share2 className="mr-2 h-4 w-4" />
               Chia sẻ
             </Button>
           </div>
         </div>
+
+        {/* Promotion Banner */}
+        <WishlistPromotionBanner wishlistIds={items.map((item) => item.id)} />
 
         {/* Filters & View Toggle */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
