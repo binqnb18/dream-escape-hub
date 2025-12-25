@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, Calendar } from "lucide-react";
+import { Menu, X, User, Bell, HelpCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -45,20 +52,61 @@ const Header = () => {
           </nav>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            {/* Help */}
+            <Button variant="ghost" size="icon" asChild className="hidden sm:flex">
+              <Link to="/help">
+                <HelpCircle className="h-5 w-5" />
+              </Link>
+            </Button>
+
+            {/* Notifications */}
+            <Button variant="ghost" size="icon" asChild className="relative">
+              <Link to="/notifications">
+                <Bell className="h-5 w-5" />
+                <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
+              </Link>
+            </Button>
+
             {/* Theme Toggle */}
             <ThemeToggle />
             
             {/* Language Selector */}
             <LanguageToggle />
 
-            {/* Auth Buttons */}
-            <Button variant="ghost" size="sm" className="hidden sm:flex">
-              Đăng nhập
-            </Button>
-            <Button size="sm" className="hidden sm:flex">
-              Đăng ký
-            </Button>
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="hidden sm:flex">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">Hồ sơ của tôi</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/bookings">Đặt phòng của tôi</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/wishlist">Yêu thích</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/invoices">Hóa đơn</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/settings">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Cài đặt
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/auth/login">Đăng nhập</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Mobile Menu Button */}
             <Button
@@ -90,12 +138,29 @@ const Header = () => {
                   {link.label}
                 </Link>
               ))}
+              <div className="border-t border-border my-2" />
+              <Link
+                to="/help"
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <HelpCircle className="h-4 w-4" />
+                Trợ giúp
+              </Link>
+              <Link
+                to="/settings"
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Settings className="h-4 w-4" />
+                Cài đặt
+              </Link>
               <div className="border-t border-border mt-2 pt-4 px-4 flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  Đăng nhập
+                <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <Link to="/auth/login" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
                 </Button>
-                <Button size="sm" className="flex-1">
-                  Đăng ký
+                <Button size="sm" className="flex-1" asChild>
+                  <Link to="/auth/signup" onClick={() => setMobileMenuOpen(false)}>Đăng ký</Link>
                 </Button>
               </div>
             </nav>

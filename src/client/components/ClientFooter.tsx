@@ -12,10 +12,10 @@ const ClientFooter = () => {
     support: {
       title: "Hỗ trợ",
       links: [
-        { label: "Quản lý đặt phòng", href: "/my-bookings" },
-        { label: "Hỗ trợ & liên hệ", href: "/messages" },
-        { label: "Hóa đơn của tôi", href: "/my-invoices" },
-        { label: "Câu hỏi thường gặp (FAQ)", href: "#" },
+        { label: "Quản lý đặt phòng", href: "/bookings" },
+        { label: "Trung tâm trợ giúp", href: "/help" },
+        { label: "Hóa đơn của tôi", href: "/invoices" },
+        { label: "Liên hệ hỗ trợ", href: "/messages" },
       ],
     },
     discover: {
@@ -23,34 +23,34 @@ const ClientFooter = () => {
       links: [
         { label: "Ưu đãi hiện hành", href: "/promotions", underline: true },
         { label: "Tìm khách sạn", href: "/search" },
-        { label: "Điểm đến phổ biến", href: "/search" },
-        { label: "Kinh nghiệm du lịch", href: "#" },
+        { label: "Điểm đến phổ biến", href: "/destinations" },
+        { label: "Tìm trên bản đồ", href: "/map-search" },
       ],
     },
     terms: {
       title: "Điều khoản & chính sách",
       links: [
-        { label: "Chính sách bảo mật", href: "#" },
-        { label: "Điều khoản sử dụng", href: "#" },
-        { label: "Chính sách hủy phòng", href: "#" },
-        { label: "Quy định thanh toán", href: "#" },
+        { label: "Chính sách bảo mật", href: "/terms" },
+        { label: "Điều khoản sử dụng", href: "/terms" },
+        { label: "Chính sách hủy phòng", href: "/terms" },
+        { label: "Quy định thanh toán", href: "/terms" },
       ],
     },
     partners: {
       title: "Đối tác khách sạn",
       links: [
-        { label: "Trở thành đối tác", href: "/partner/dashboard" },
-        { label: "Đăng nhập đối tác", href: "/partner/dashboard" },
-        { label: "Hỗ trợ đối tác", href: "#" },
+        { label: "Trở thành đối tác", href: "/partner/register" },
+        { label: "Đăng nhập đối tác", href: "/partner/login" },
+        { label: "Hỗ trợ đối tác", href: "/help" },
       ],
     },
     about: {
       title: "Về VBOOKING",
       links: [
-        { label: "Giới thiệu VBOOKING", href: "#" },
-        { label: "Chúng tôi hoạt động như thế nào", href: "#" },
-        { label: "Cơ hội nghề nghiệp", href: "#" },
-        { label: "Liên hệ", href: "#" },
+        { label: "Giới thiệu", href: "/about" },
+        { label: "Cách hoạt động", href: "/about" },
+        { label: "Blog du lịch", href: "/blog/1" },
+        { label: "Liên hệ", href: "/help" },
       ],
     },
   };
