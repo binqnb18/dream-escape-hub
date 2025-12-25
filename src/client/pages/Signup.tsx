@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import AuthLayout from "@/components/auth/AuthLayout";
+import AuthLayout from "@/client/components/auth/AuthLayout";
 import { Progress } from "@/components/ui/progress";
 
 const Signup = () => {
