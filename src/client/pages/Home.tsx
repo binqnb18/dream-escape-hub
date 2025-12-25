@@ -1,15 +1,15 @@
-import Header from "@/components/Header";
-import HeroSection from "@/components/HeroSection";
-import TrustBadges from "@/components/TrustBadges";
-import PopularDestinations from "@/components/PopularDestinations";
-import HowItWorks from "@/components/HowItWorks";
-import AccommodationPromotions from "@/components/AccommodationPromotions";
-import FeaturedHotels from "@/components/FeaturedHotels";
-import BlogSection from "@/components/BlogSection";
-import Testimonials from "@/components/Testimonials";
-import Newsletter from "@/components/Newsletter";
-import ClientFooter from "@/components/ClientFooter";
-import StickySearchBar from "@/components/StickySearchBar";
+import Header from "@/client/components/Header";
+import HeroSection from "@/client/components/HeroSection";
+import TrustBadges from "@/client/components/TrustBadges";
+import PopularDestinations from "@/client/components/PopularDestinations";
+import HowItWorks from "@/client/components/HowItWorks";
+import AccommodationPromotions from "@/client/components/AccommodationPromotions";
+import FeaturedHotels from "@/client/components/FeaturedHotels";
+import BlogSection from "@/client/components/BlogSection";
+import Testimonials from "@/client/components/Testimonials";
+import Newsletter from "@/client/components/Newsletter";
+import ClientFooter from "@/client/components/ClientFooter";
+import StickySearchBar from "@/client/components/StickySearchBar";
 
 const Index = () => {
   return (

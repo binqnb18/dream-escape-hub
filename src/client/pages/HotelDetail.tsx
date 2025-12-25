@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import Header from "@/components/Header";
-import ClientFooter from "@/components/ClientFooter";
+import Header from "@/client/components/Header";
+import ClientFooter from "@/client/components/ClientFooter";
 import HotelGallery from "@/components/hotel-detail/HotelGallery";
 import HotelOverview from "@/components/hotel-detail/HotelOverview";
 import HotelRooms from "@/components/hotel-detail/HotelRooms";
@@ -12,7 +12,7 @@ import HotelReviews from "@/components/hotel-detail/HotelReviews";
 import HotelFAQ from "@/components/hotel-detail/HotelFAQ";
 import SimilarHotels from "@/components/hotel-detail/SimilarHotels";
 import BookingForm from "@/components/hotel-detail/BookingForm";
-import ComparisonFloatingBar from "@/components/ComparisonFloatingBar";
+import ComparisonFloatingBar from "@/client/components/ComparisonFloatingBar";
 import { Button } from "@/components/ui/button";
 import { Heart, Share2 } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";

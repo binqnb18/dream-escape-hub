@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
-import ClientFooter from "@/components/ClientFooter";
+import Header from "@/client/components/Header";
+import ClientFooter from "@/client/components/ClientFooter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

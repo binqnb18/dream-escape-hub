@@ -13,8 +13,8 @@ import {
   CheckCheck,
   ArrowLeft,
 } from "lucide-react";
-import Header from "@/components/Header";
-import ClientFooter from "@/components/ClientFooter";
+import Header from "@/client/components/Header";
+import ClientFooter from "@/client/components/ClientFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
