@@ -3,26 +3,34 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import SearchResults from "./pages/SearchResults";
-import HotelDetail from "./pages/HotelDetail";
-import Booking from "./pages/Booking";
-import Payment from "./pages/Payment";
-import BookingConfirmation from "./pages/BookingConfirmation";
-import Bookings from "./pages/Bookings";
-import Destinations from "./pages/Destinations";
-import Promotions from "./pages/Promotions";
-import BookingDetail from "./pages/BookingDetail";
+
+// Client Pages
+import Home from "./client/pages/Home";
+import SearchResults from "./client/pages/SearchResults";
+import HotelDetail from "./client/pages/HotelDetail";
+import Booking from "./client/pages/Booking";
+import Payment from "./client/pages/Payment";
+import Confirmation from "./client/pages/Confirmation";
+import MyBookings from "./client/pages/MyBookings";
+import BookingDetail from "./client/pages/BookingDetail";
+import Destinations from "./client/pages/Destinations";
+import ClientPromotions from "./client/pages/ClientPromotions";
+import Login from "./client/pages/Login";
+import Signup from "./client/pages/Signup";
+import ForgotPassword from "./client/pages/ForgotPassword";
+import VerifyOtp from "./client/pages/VerifyOtp";
+import Profile from "./client/pages/Profile";
+import Wishlist from "./client/pages/Wishlist";
+import ClientMessages from "./client/pages/ClientMessages";
+import MapSearch from "./client/pages/MapSearch";
+import ClientInvoices from "./client/pages/ClientInvoices";
+import CompareRooms from "./client/pages/CompareRooms";
+
+// Shared Pages
 import NotFound from "./pages/NotFound";
-import Login from "./pages/auth/Login";
-import Signup from "./pages/auth/Signup";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-import VerifyOtp from "./pages/auth/VerifyOtp";
-import Profile from "./pages/Profile";
-import Wishlist from "./pages/Wishlist";
-import Messages from "./pages/Messages";
-import MapSearch from "./pages/MapSearch";
-import ComparisonFloatingBar from "./components/ComparisonFloatingBar";
+
+// Components & Providers
+import ComparisonFloatingBar from "./client/components/ComparisonFloatingBar";
 import { useRoomComparison } from "./hooks/use-room-comparison";
 import { ThemeProvider } from "./hooks/use-theme";
 import { LanguageProvider } from "./hooks/use-language";
@@ -36,24 +44,33 @@ const AppContent = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Index />} />
+        {/* Client Routes */}
+        <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/hotel/:id" element={<HotelDetail />} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/booking/payment" element={<Payment />} />
-        <Route path="/booking/confirmation" element={<BookingConfirmation />} />
-        <Route path="/bookings" element={<Bookings />} />
+        <Route path="/booking/confirmation" element={<Confirmation />} />
+        <Route path="/bookings" element={<MyBookings />} />
         <Route path="/booking/:id" element={<BookingDetail />} />
         <Route path="/destinations" element={<Destinations />} />
-        <Route path="/promotions" element={<Promotions />} />
+        <Route path="/promotions" element={<ClientPromotions />} />
+        <Route path="/compare-rooms" element={<CompareRooms />} />
+        <Route path="/invoices" element={<ClientInvoices />} />
+        
+        {/* Auth Routes */}
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/signup" element={<Signup />} />
         <Route path="/auth/forgot-password" element={<ForgotPassword />} />
         <Route path="/auth/verify-otp" element={<VerifyOtp />} />
+        
+        {/* User Routes */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/messages" element={<Messages />} />
+        <Route path="/messages" element={<ClientMessages />} />
         <Route path="/map-search" element={<MapSearch />} />
+        
+        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ComparisonFloatingBar

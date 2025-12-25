@@ -17,8 +17,8 @@ import {
   Check,
   Info,
 } from "lucide-react";
-import Header from "@/components/Header";
-import ClientFooter from "@/components/ClientFooter";
+import Header from "@/client/components/Header";
+import ClientFooter from "@/client/components/ClientFooter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
