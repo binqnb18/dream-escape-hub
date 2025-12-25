@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -15,6 +15,11 @@ import {
   QrCode,
   Building2,
   Loader2,
+  Clock,
+  Info,
+  AlertCircle,
+  BadgePercent,
+  Gift,
 } from "lucide-react";
 import Header from "@/components/Header";
 import ClientFooter from "@/components/ClientFooter";
@@ -86,6 +91,31 @@ const paymentMethods = [
   },
 ];
 
+// Countdown Timer Hook
+const useCountdown = (initialMinutes: number = 20) => {
+  const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
+  return {
+    minutes,
+    seconds,
+    timeLeft,
+    formatted: `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+  };
+};
+
 const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -93,10 +123,15 @@ const Payment = () => {
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const countdown = useCountdown(20);
 
   const paymentState = location.state as PaymentState | undefined;
 
-  // Mock data if no state
+  // Mock data if no state - with discount pricing
+  const originalPrice = 7049017; // Original high price
+  const discountPercent = 57;
+  const ourPrice = Math.round(originalPrice * (1 - discountPercent / 100));
+
   const booking: PaymentState = paymentState || {
     hotelId: "1",
     hotelName: "Vinpearl Resort & Spa Nha Trang Bay",
@@ -104,10 +139,10 @@ const Payment = () => {
     hotelRating: 4.8,
     hotelAddress: "Đảo Hòn Tre, Vĩnh Nguyên, Nha Trang",
     roomName: "Phòng Deluxe Hướng Biển",
-    roomPrice: 2500000,
+    roomPrice: ourPrice,
     checkIn: new Date(),
     checkOut: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-    nights: 2,
+    nights: 1,
     adults: 2,
     children: 0,
     rooms: 1,
@@ -118,10 +153,14 @@ const Payment = () => {
       phone: "0901234567",
       country: "VN",
     },
-    totalPrice: 5000000,
-    serviceFee: 500000,
-    grandTotal: 5500000,
+    totalPrice: ourPrice,
+    serviceFee: Math.round(ourPrice * 0.13), // 5% service + 8% tax
+    grandTotal: ourPrice + Math.round(ourPrice * 0.13),
   };
+
+  // Calculate prices
+  const taxAndFee = Math.round(booking.roomPrice * 0.13);
+  const bookingFee = 0; // Free
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -129,7 +168,7 @@ const Payment = () => {
 
   const handleApplyPromo = () => {
     if (promoCode.toUpperCase() === "WELCOME10") {
-      const discountAmount = Math.round(booking.grandTotal * 0.1);
+      const discountAmount = Math.round(booking.roomPrice * 0.1);
       setDiscount(discountAmount);
       toast.success("Áp dụng mã giảm giá thành công!", {
         description: `Giảm ${discountAmount.toLocaleString("vi-VN")}₫`,
@@ -139,7 +178,9 @@ const Payment = () => {
     }
   };
 
-  const finalTotal = booking.grandTotal - discount;
+  const roomPriceAfterCoupon = booking.roomPrice - discount;
+  const finalTotal = roomPriceAfterCoupon + taxAndFee + bookingFee;
+  const cashbackAmount = Math.round(finalTotal * 0.024); // 2.4% cashback
 
   const handlePayment = async () => {
     setIsProcessing(true);
@@ -173,6 +214,26 @@ const Payment = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+
+      {/* Countdown Timer Banner */}
+      <div className="bg-red-50 border-y border-red-200 dark:bg-red-950/30 dark:border-red-900">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <AlertCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">
+                Chúng tôi đang giữ giá cho quý khách...
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <Clock className="h-5 w-5" />
+              <span className="text-lg font-bold tabular-nums">
+                {countdown.formatted}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <main className="container mx-auto px-4 py-8">
         {/* Progress Bar */}
@@ -375,30 +436,12 @@ const Payment = () => {
                 </p>
               </CardContent>
             </Card>
-
-            {/* Security Notice */}
-            <Card className="border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-900">
-              <CardContent className="p-4 flex items-center gap-3">
-                <Shield className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="font-medium text-green-800 dark:text-green-400">
-                    Thanh toán an toàn
-                  </p>
-                  <p className="text-sm text-green-700 dark:text-green-500">
-                    Thông tin của bạn được mã hóa SSL 256-bit và tuân thủ PCI DSS
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
-          {/* Right Column - Booking Summary */}
-          <div className="space-y-6">
+          {/* Right Column - Professional Invoice */}
+          <div className="space-y-4">
             <Card className="sticky top-24">
-              <CardHeader>
-                <CardTitle className="text-lg">Tóm tắt đặt phòng</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-6 space-y-4">
                 {/* Hotel Info */}
                 <div className="flex gap-4">
                   <img
@@ -407,12 +450,12 @@ const Payment = () => {
                     className="w-20 h-20 rounded-lg object-cover"
                   />
                   <div className="flex-1">
-                    <h3 className="font-medium line-clamp-2">
+                    <h3 className="font-medium line-clamp-2 text-sm">
                       {booking.hotelName}
                     </h3>
                     <div className="flex items-center gap-1 mt-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">
+                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs font-medium">
                         {booking.hotelRating}
                       </span>
                     </div>
@@ -425,79 +468,124 @@ const Payment = () => {
 
                 <Separator />
 
-                {/* Room Info */}
-                <div>
+                {/* Room & Dates */}
+                <div className="space-y-2 text-sm">
                   <p className="font-medium">{booking.roomName}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {booking.rooms} phòng
-                  </p>
+                  <div className="flex items-center gap-4 text-muted-foreground">
+                    <span>{format(new Date(booking.checkIn), "dd/MM/yyyy")}</span>
+                    <span>→</span>
+                    <span>{format(new Date(booking.checkOut), "dd/MM/yyyy")}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Users className="h-4 w-4" />
+                    <span>
+                      {booking.adults} người lớn
+                      {booking.children > 0 && `, ${booking.children} trẻ em`}
+                    </span>
+                    <span>•</span>
+                    <span>{booking.nights} đêm</span>
+                  </div>
                 </div>
 
                 <Separator />
 
-                {/* Dates */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      <span>Nhận phòng</span>
-                    </div>
-                    <p className="font-medium">
-                      {format(new Date(booking.checkIn), "dd/MM/yyyy", {
-                        locale: vi,
-                      })}
-                    </p>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      <span>Trả phòng</span>
-                    </div>
-                    <p className="font-medium">
-                      {format(new Date(booking.checkOut), "dd/MM/yyyy", {
-                        locale: vi,
-                      })}
-                    </p>
-                  </div>
+                {/* Discount Badge */}
+                <div className="flex justify-center">
+                  <Badge className="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 text-sm font-semibold">
+                    <BadgePercent className="h-4 w-4 mr-1" />
+                    GIẢM {discountPercent}% HÔM NAY
+                  </Badge>
                 </div>
 
-                {/* Guests */}
-                <div className="flex items-center gap-2 text-sm">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {booking.adults} người lớn
-                    {booking.children > 0 && `, ${booking.children} trẻ em`}
-                  </span>
-                  <span className="text-muted-foreground">•</span>
-                  <span>{booking.nights} đêm</span>
-                </div>
-
-                <Separator />
-
-                {/* Price Breakdown */}
-                <div className="space-y-2">
+                {/* Price Breakdown - Professional Style */}
+                <div className="space-y-3">
+                  {/* Original Price */}
                   <div className="flex justify-between text-sm">
-                    <span>Giá phòng</span>
-                    <span>{booking.totalPrice.toLocaleString("vi-VN")}₫</span>
+                    <span className="text-muted-foreground">
+                      Giá gốc ({booking.rooms} phòng x {booking.nights} đêm)
+                    </span>
+                    <span className="line-through text-muted-foreground">
+                      {originalPrice.toLocaleString("vi-VN")} ₫
+                    </span>
                   </div>
+
+                  {/* Our Price */}
                   <div className="flex justify-between text-sm">
-                    <span>Thuế và phí dịch vụ</span>
-                    <span>{booking.serviceFee.toLocaleString("vi-VN")}₫</span>
+                    <span className="text-muted-foreground">Giá của chúng tôi</span>
+                    <span className="text-green-600 font-medium">
+                      {booking.roomPrice.toLocaleString("vi-VN")} ₫
+                    </span>
                   </div>
+
+                  {/* Coupon Discount */}
                   {discount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>Giảm giá</span>
-                      <span>-{discount.toLocaleString("vi-VN")}₫</span>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Coupon đã sử dụng</span>
+                      <span className="text-red-500 font-medium">
+                        -{discount.toLocaleString("vi-VN")} ₫
+                      </span>
                     </div>
                   )}
+
                   <Separator />
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Tổng cộng</span>
-                    <span className="text-primary">
-                      {finalTotal.toLocaleString("vi-VN")}₫
+
+                  {/* Room Price after discount */}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Giá phòng ({booking.rooms} phòng x {booking.nights} đêm)
+                    </span>
+                    <span className="font-medium">
+                      {roomPriceAfterCoupon.toLocaleString("vi-VN")} ₫
+                    </span>
+                  </div>
+
+                  {/* Tax & Fee */}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Thuế và phí</span>
+                    <span>{taxAndFee.toLocaleString("vi-VN")} ₫</span>
+                  </div>
+
+                  {/* Booking Fee */}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Phí đặt trước</span>
+                    <span className="text-green-600 font-semibold">MIỄN PHÍ</span>
+                  </div>
+
+                  <Separator />
+
+                  {/* Total */}
+                  <div className="flex justify-between items-center pt-2">
+                    <div className="flex items-center gap-1">
+                      <span className="font-semibold">Tổng thanh toán</span>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </div>
+                    <span className="text-2xl font-bold text-primary">
+                      {finalTotal.toLocaleString("vi-VN")} ₫
                     </span>
                   </div>
                 </div>
+
+                {/* Cashback Box */}
+                <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-900">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Gift className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      Sau khi hoàn tiền mặt
+                      <Info className="h-3 w-3" />
+                    </span>
+                  </div>
+                  <p className="text-xl font-bold text-blue-600">
+                    {(finalTotal - cashbackAmount).toLocaleString("vi-VN")} ₫
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Bạn sẽ nhận {cashbackAmount.toLocaleString("vi-VN")} ₫ sau khi trả phòng
+                  </p>
+                </div>
+
+                {/* Price includes note */}
+                <p className="text-xs text-muted-foreground text-center">
+                  Giá đã bao gồm: Phí dịch vụ 5%, Thuế 8%
+                </p>
 
                 {/* Pay Button */}
                 <Button
@@ -513,14 +601,21 @@ const Payment = () => {
                     </>
                   ) : (
                     <>
-                      <Shield className="h-4 w-4 mr-2" />
                       Thanh toán {finalTotal.toLocaleString("vi-VN")}₫
                     </>
                   )}
                 </Button>
 
+                {/* Security Badge */}
+                <div className="flex items-center justify-center gap-2 py-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-900">
+                  <Shield className="h-5 w-5 text-green-600" />
+                  <span className="text-sm text-green-700 dark:text-green-400 font-medium">
+                    Được bảo vệ bởi SSL 256-bit encryption
+                  </span>
+                </div>
+
                 {/* Benefits */}
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm pt-2">
                   <div className="flex items-center gap-2 text-green-600">
                     <Check className="h-4 w-4" />
                     <span>Xác nhận tức thì</span>
