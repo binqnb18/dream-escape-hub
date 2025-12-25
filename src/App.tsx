@@ -10,6 +10,8 @@ import Booking from "./pages/Booking";
 import Payment from "./pages/Payment";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import Bookings from "./pages/Bookings";
+import Destinations from "./pages/Destinations";
+import Promotions from "./pages/Promotions";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -40,6 +42,8 @@ const AppContent = () => {
         <Route path="/booking/payment" element={<Payment />} />
         <Route path="/booking/confirmation" element={<BookingConfirmation />} />
         <Route path="/bookings" element={<Bookings />} />
+        <Route path="/destinations" element={<Destinations />} />
+        <Route path="/promotions" element={<Promotions />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/signup" element={<Signup />} />
         <Route path="/auth/forgot-password" element={<ForgotPassword />} />
