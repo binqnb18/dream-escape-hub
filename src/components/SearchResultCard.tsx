@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, MapPin, Star, ChevronRight, ChevronLeft, CreditCard, Award } from "lucide-react";
+import { Heart, MapPin, Star, ChevronRight, ChevronLeft, CreditCard, Award, GitCompare, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/use-favorites";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface SearchResultCardProps {
   id: number;
@@ -31,6 +33,10 @@ interface SearchResultCardProps {
   couponApplied?: string;
   bookedToday?: string;
   guestReview?: string;
+  // Comparison props
+  isInComparison?: boolean;
+  onToggleComparison?: () => void;
+  canAddMore?: boolean;
 }
 
 const SearchResultCard = ({
@@ -56,6 +62,9 @@ const SearchResultCard = ({
   couponApplied,
   bookedToday,
   guestReview,
+  isInComparison = false,
+  onToggleComparison,
+  canAddMore = true,
 }: SearchResultCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -97,6 +106,14 @@ const SearchResultCard = ({
     }
   };
 
+  const handleComparisonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleComparison) {
+      onToggleComparison();
+    }
+  };
+
   const handlePrevImage = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -111,7 +128,10 @@ const SearchResultCard = ({
 
   return (
     <div
-      className="bg-card rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
+      className={cn(
+        "bg-card rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group",
+        isInComparison && "ring-2 ring-primary border-primary"
+      )}
       onClick={() => navigate(`/hotel/${id}`)}
     >
       {/* Desktop Layout */}
@@ -237,6 +257,36 @@ const SearchResultCard = ({
                     <span>{perk}</span>
                   </span>
                 ))}
+              </div>
+            )}
+
+            {/* Comparison Button - Desktop */}
+            {onToggleComparison && (
+              <div className="pt-2">
+                <Button
+                  variant={isInComparison ? "default" : "outline"}
+                  size="sm"
+                  onClick={handleComparisonClick}
+                  disabled={!isInComparison && !canAddMore}
+                  className={cn(
+                    "flex items-center gap-2 transition-all",
+                    isInComparison 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:border-primary hover:text-primary"
+                  )}
+                >
+                  {isInComparison ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      Đã thêm so sánh
+                    </>
+                  ) : (
+                    <>
+                      <GitCompare className="h-4 w-4" />
+                      So sánh
+                    </>
+                  )}
+                </Button>
               </div>
             )}
           </div>
