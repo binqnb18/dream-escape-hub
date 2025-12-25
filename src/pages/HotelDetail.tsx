@@ -12,9 +12,11 @@ import HotelReviews from "@/components/hotel-detail/HotelReviews";
 import HotelFAQ from "@/components/hotel-detail/HotelFAQ";
 import SimilarHotels from "@/components/hotel-detail/SimilarHotels";
 import BookingForm from "@/components/hotel-detail/BookingForm";
+import ComparisonFloatingBar from "@/components/ComparisonFloatingBar";
 import { Button } from "@/components/ui/button";
 import { Heart, Share2 } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
+import { useRoomComparison } from "@/hooks/use-room-comparison";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -53,9 +55,9 @@ const HotelDetail = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { rooms: comparisonRooms, removeRoom, clearAll } = useRoomComparison();
   const hotelId = parseInt(id || "1");
   const isFav = isFavorite(hotelId);
-
   const scrollToSection = (sectionId: string) => {
     setActiveTab(sectionId);
     const element = document.getElementById(sectionId);
@@ -198,6 +200,12 @@ const HotelDetail = () => {
       </main>
 
       <ClientFooter />
+
+      <ComparisonFloatingBar
+        rooms={comparisonRooms}
+        onRemove={removeRoom}
+        onClearAll={clearAll}
+      />
     </div>
   );
 };
