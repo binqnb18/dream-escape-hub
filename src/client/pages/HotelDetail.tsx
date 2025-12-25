@@ -13,6 +13,7 @@ import HotelFAQ from "@/client/components/hotel-detail/HotelFAQ";
 import SimilarHotels from "@/client/components/hotel-detail/SimilarHotels";
 import BookingForm from "@/client/components/hotel-detail/BookingForm";
 import ComparisonFloatingBar from "@/client/components/ComparisonFloatingBar";
+import ShareModal from "@/client/components/ShareModal";
 import { Button } from "@/components/ui/button";
 import { Heart, Share2 } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
@@ -54,6 +55,7 @@ const hotelData = {
 const HotelDetail = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { rooms: comparisonRooms, removeRoom, clearAll } = useRoomComparison();
   const hotelId = parseInt(id || "1");
@@ -91,7 +93,7 @@ const HotelDetail = () => {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="ghost" size="sm" className="gap-2" onClick={() => setShareModalOpen(true)}>
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Chia sẻ</span>
               </Button>
@@ -205,6 +207,14 @@ const HotelDetail = () => {
         rooms={comparisonRooms}
         onRemove={removeRoom}
         onClearAll={clearAll}
+      />
+
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        title={hotelData.name}
+        description={hotelData.description}
+        image={hotelData.images[0]}
       />
     </div>
   );
