@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, Check, X } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, Check, X, ArrowRight, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import AuthLayout from "@/components/auth/AuthLayout";
+import { Progress } from "@/components/ui/progress";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -29,11 +30,25 @@ const Signup = () => {
 
   const passwordRequirements = [
     { label: "Ít nhất 8 ký tự", test: (p: string) => p.length >= 8 },
-    { label: "Có chữ hoa", test: (p: string) => /[A-Z]/.test(p) },
-    { label: "Có chữ thường", test: (p: string) => /[a-z]/.test(p) },
-    { label: "Có số", test: (p: string) => /[0-9]/.test(p) },
-    { label: "Có ký tự đặc biệt", test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
+    { label: "Có chữ hoa (A-Z)", test: (p: string) => /[A-Z]/.test(p) },
+    { label: "Có chữ thường (a-z)", test: (p: string) => /[a-z]/.test(p) },
+    { label: "Có số (0-9)", test: (p: string) => /[0-9]/.test(p) },
+    { label: "Có ký tự đặc biệt (!@#$...)", test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
   ];
+
+  const getPasswordStrength = () => {
+    const passed = passwordRequirements.filter(req => req.test(formData.password)).length;
+    return (passed / passwordRequirements.length) * 100;
+  };
+
+  const getPasswordStrengthLabel = () => {
+    const strength = getPasswordStrength();
+    if (strength === 0) return { label: "", color: "" };
+    if (strength <= 40) return { label: "Yếu", color: "text-red-500" };
+    if (strength <= 60) return { label: "Trung bình", color: "text-orange-500" };
+    if (strength <= 80) return { label: "Khá", color: "text-yellow-500" };
+    return { label: "Mạnh", color: "text-green-500" };
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -93,7 +108,7 @@ const Signup = () => {
     if (result.success) {
       toast({
         title: "Đăng ký thành công!",
-        description: "Chào mừng bạn đến với TripNest",
+        description: "Vui lòng kiểm tra email để xác thực tài khoản",
       });
       navigate("/auth/verify-otp");
     } else {
@@ -105,6 +120,8 @@ const Signup = () => {
     }
   };
 
+  const strengthInfo = getPasswordStrengthLabel();
+
   return (
     <AuthLayout
       title="Tạo tài khoản mới"
@@ -114,7 +131,7 @@ const Signup = () => {
         {/* Name fields */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <Label htmlFor="firstName">Họ</Label>
+            <Label htmlFor="firstName">Họ <span className="text-destructive">*</span></Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -122,7 +139,7 @@ const Signup = () => {
                 placeholder="Nguyễn"
                 value={formData.firstName}
                 onChange={(e) => handleChange("firstName", e.target.value)}
-                className={`pl-10 ${errors.firstName ? 'border-destructive' : ''}`}
+                className={`pl-10 h-11 ${errors.firstName ? 'border-destructive' : ''}`}
               />
             </div>
             {errors.firstName && (
@@ -130,13 +147,13 @@ const Signup = () => {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName">Tên</Label>
+            <Label htmlFor="lastName">Tên <span className="text-destructive">*</span></Label>
             <Input
               id="lastName"
               placeholder="Văn A"
               value={formData.lastName}
               onChange={(e) => handleChange("lastName", e.target.value)}
-              className={errors.lastName ? 'border-destructive' : ''}
+              className={`h-11 ${errors.lastName ? 'border-destructive' : ''}`}
             />
             {errors.lastName && (
               <p className="text-xs text-destructive">{errors.lastName}</p>
@@ -146,7 +163,7 @@ const Signup = () => {
 
         {/* Email */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -155,7 +172,7 @@ const Signup = () => {
               placeholder="email@example.com"
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
-              className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
+              className={`pl-10 h-11 ${errors.email ? 'border-destructive' : ''}`}
             />
           </div>
           {errors.email && (
@@ -165,23 +182,23 @@ const Signup = () => {
 
         {/* Phone */}
         <div className="space-y-2">
-          <Label htmlFor="phone">Số điện thoại (tùy chọn)</Label>
+          <Label htmlFor="phone">Số điện thoại <span className="text-muted-foreground text-xs">(tùy chọn)</span></Label>
           <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               id="phone"
               type="tel"
-              placeholder="+84 901 234 567"
+              placeholder="0901 234 567"
               value={formData.phone}
               onChange={(e) => handleChange("phone", e.target.value)}
-              className="pl-10"
+              className="pl-10 h-11"
             />
           </div>
         </div>
 
         {/* Password */}
         <div className="space-y-2">
-          <Label htmlFor="password">Mật khẩu</Label>
+          <Label htmlFor="password">Mật khẩu <span className="text-destructive">*</span></Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -190,39 +207,49 @@ const Signup = () => {
               placeholder="••••••••"
               value={formData.password}
               onChange={(e) => handleChange("password", e.target.value)}
-              className={`pl-10 pr-10 ${errors.password ? 'border-destructive' : ''}`}
+              className={`pl-10 pr-10 h-11 ${errors.password ? 'border-destructive' : ''}`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
           
-          {/* Password strength indicators */}
+          {/* Password strength bar */}
           {formData.password && (
-            <div className="grid grid-cols-2 gap-1 mt-2">
-              {passwordRequirements.map((req, index) => (
-                <div key={index} className="flex items-center gap-1 text-xs">
-                  {req.test(formData.password) ? (
-                    <Check className="h-3 w-3 text-success" />
-                  ) : (
-                    <X className="h-3 w-3 text-muted-foreground" />
-                  )}
-                  <span className={req.test(formData.password) ? "text-success" : "text-muted-foreground"}>
-                    {req.label}
-                  </span>
-                </div>
-              ))}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Progress value={getPasswordStrength()} className="h-1.5 flex-1" />
+                <span className={`text-xs font-medium ml-2 ${strengthInfo.color}`}>
+                  {strengthInfo.label}
+                </span>
+              </div>
+              
+              {/* Password requirements */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                {passwordRequirements.map((req, index) => (
+                  <div key={index} className="flex items-center gap-1.5 text-xs">
+                    {req.test(formData.password) ? (
+                      <Check className="h-3.5 w-3.5 text-green-500" />
+                    ) : (
+                      <X className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                    <span className={req.test(formData.password) ? "text-green-600" : "text-muted-foreground"}>
+                      {req.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
         {/* Confirm Password */}
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+          <Label htmlFor="confirmPassword">Xác nhận mật khẩu <span className="text-destructive">*</span></Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -231,18 +258,24 @@ const Signup = () => {
               placeholder="••••••••"
               value={formData.confirmPassword}
               onChange={(e) => handleChange("confirmPassword", e.target.value)}
-              className={`pl-10 pr-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
+              className={`pl-10 pr-10 h-11 ${errors.confirmPassword ? 'border-destructive' : ''}`}
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             >
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
           {errors.confirmPassword && (
             <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+          )}
+          {formData.confirmPassword && formData.password === formData.confirmPassword && (
+            <p className="text-xs text-green-600 flex items-center gap-1">
+              <Check className="h-3 w-3" />
+              Mật khẩu khớp
+            </p>
           )}
         </div>
 
@@ -252,18 +285,24 @@ const Signup = () => {
             <Checkbox
               id="terms"
               checked={agreeTerms}
-              onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
+              onCheckedChange={(checked) => {
+                setAgreeTerms(checked as boolean);
+                if (errors.terms) {
+                  setErrors(prev => ({ ...prev, terms: "" }));
+                }
+              }}
               className="mt-0.5"
             />
             <Label htmlFor="terms" className="text-sm font-normal cursor-pointer leading-tight">
               Tôi đồng ý với{" "}
-              <Link to="/terms" className="text-primary hover:underline">
+              <Link to="/terms" className="text-primary font-medium hover:underline">
                 Điều khoản sử dụng
               </Link>{" "}
               và{" "}
-              <Link to="/privacy" className="text-primary hover:underline">
+              <Link to="/privacy" className="text-primary font-medium hover:underline">
                 Chính sách bảo mật
-              </Link>
+              </Link>{" "}
+              của TripNest
             </Label>
           </div>
           {errors.terms && (
@@ -272,21 +311,30 @@ const Signup = () => {
         </div>
 
         {/* Submit */}
-        <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+        <Button type="submit" className="w-full h-12 text-base gap-2" disabled={isLoading}>
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
               Đang tạo tài khoản...
             </>
           ) : (
-            "Đăng ký"
+            <>
+              Tạo tài khoản
+              <ArrowRight className="h-4 w-4" />
+            </>
           )}
         </Button>
+
+        {/* Security notice */}
+        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Shield className="h-3.5 w-3.5" />
+          <span>Thông tin của bạn được bảo mật an toàn</span>
+        </div>
 
         {/* Login link */}
         <p className="text-center text-sm text-muted-foreground">
           Đã có tài khoản?{" "}
-          <Link to="/auth/login" className="text-primary font-medium hover:underline">
+          <Link to="/auth/login" className="text-primary font-semibold hover:underline">
             Đăng nhập
           </Link>
         </p>
