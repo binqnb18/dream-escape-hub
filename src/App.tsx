@@ -32,6 +32,7 @@ import TermsPrivacy from "./client/pages/TermsPrivacy";
 import WriteReview from "./client/pages/WriteReview";
 import NotificationCenter from "./client/pages/NotificationCenter";
 import BlogDetail from "./client/pages/BlogDetail";
+import AccountSettings from "./client/pages/AccountSettings";
 
 // Shared Pages
 import NotFound from "./pages/NotFound";
@@ -61,9 +62,14 @@ const AppContent = () => {
         <Route path="/bookings" element={<MyBookings />} />
         <Route path="/booking/:id" element={<BookingDetail />} />
         <Route path="/destinations" element={<Destinations />} />
+        <Route path="/destination/:id" element={<DestinationDetail />} />
         <Route path="/promotions" element={<ClientPromotions />} />
         <Route path="/compare-rooms" element={<CompareRooms />} />
         <Route path="/invoices" element={<ClientInvoices />} />
+        <Route path="/help" element={<HelpCenter />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/terms" element={<TermsPrivacy />} />
+        <Route path="/blog/:id" element={<BlogDetail />} />
         
         {/* Auth Routes */}
         <Route path="/auth/login" element={<Login />} />
@@ -73,8 +79,11 @@ const AppContent = () => {
         
         {/* User Routes */}
         <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<AccountSettings />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/messages" element={<ClientMessages />} />
+        <Route path="/notifications" element={<NotificationCenter />} />
+        <Route path="/write-review/:bookingId" element={<WriteReview />} />
         <Route path="/map-search" element={<MapSearch />} />
         
         {/* 404 */}
