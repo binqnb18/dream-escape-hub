@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import AuthLayout from "@/components/auth/AuthLayout";
+import AuthLayout from "@/client/components/auth/AuthLayout";
 
 const Login = () => {
   const navigate = useNavigate();
