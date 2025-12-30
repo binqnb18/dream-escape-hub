@@ -291,15 +291,24 @@ const SearchResultCard = ({
             )}
           </div>
 
-          <div className="w-44 flex flex-col items-end justify-between pl-4 border-l border-border">
-            <div className="text-right space-y-1">
-              <p className={`text-base font-bold ${getRatingColor(rating)}`}>
-                {rating} {reviewLabel}
-              </p>
-              <p className="text-xs text-muted-foreground">{reviewCount} reviews</p>
+          <div className="w-48 flex flex-col items-end justify-between pl-4 border-l border-border">
+            {/* Rating Section - Agoda Style */}
+            <div className="text-right space-y-1.5">
+              <div className="flex items-center justify-end gap-2">
+                <div className="text-right">
+                  <p className="text-sm font-bold text-foreground">{reviewLabel}</p>
+                  <p className="text-xs text-muted-foreground">{reviewCount} reviews</p>
+                </div>
+                <div className={cn(
+                  "w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-base",
+                  rating >= 8 ? "bg-[#388e3c]" : rating >= 7 ? "bg-[#5d9c59]" : rating >= 6 ? "bg-[#7fb77e]" : "bg-[#a8d5ba]"
+                )}>
+                  {rating}
+                </div>
+              </div>
               {locationScore && (
-                <p className="text-xs text-foreground">
-                  <span className="font-semibold">{locationScore}</span> Location score
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-bold text-foreground">{locationScore}</span> Location score
                 </p>
               )}
             </div>
@@ -423,11 +432,18 @@ const SearchResultCard = ({
                 ))}
               </div>
             </div>
-            <div className="text-right flex-shrink-0">
-              <p className={`text-sm font-bold ${getRatingColor(rating)}`}>
+            {/* Rating Badge - Agoda Style Mobile */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className="text-right">
+                <p className="text-xs font-semibold text-foreground">{reviewLabel}</p>
+                <p className="text-[10px] text-muted-foreground">{reviewCount}</p>
+              </div>
+              <div className={cn(
+                "w-8 h-8 rounded-md flex items-center justify-center text-white font-bold text-sm",
+                rating >= 8 ? "bg-[#388e3c]" : rating >= 7 ? "bg-[#5d9c59]" : rating >= 6 ? "bg-[#7fb77e]" : "bg-[#a8d5ba]"
+              )}>
                 {rating}
-              </p>
-              <p className="text-[10px] text-muted-foreground">{reviewCount}</p>
+              </div>
             </div>
           </div>
           
