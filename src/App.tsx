@@ -34,6 +34,11 @@ import NotificationCenter from "./client/pages/NotificationCenter";
 import BlogDetail from "./client/pages/BlogDetail";
 import AccountSettings from "./client/pages/AccountSettings";
 
+// Partner Pages
+import PartnerLogin from "./partner/pages/PartnerLogin";
+import PartnerSignup from "./partner/pages/PartnerSignup";
+import PartnerDashboard from "./partner/pages/PartnerDashboard";
+
 // Shared Pages
 import NotFound from "./pages/NotFound";
 
@@ -85,6 +90,11 @@ const AppContent = () => {
         <Route path="/notifications" element={<NotificationCenter />} />
         <Route path="/write-review/:bookingId" element={<WriteReview />} />
         <Route path="/map-search" element={<MapSearch />} />
+        
+        {/* Partner Routes */}
+        <Route path="/partner/login" element={<PartnerLogin />} />
+        <Route path="/partner/signup" element={<PartnerSignup />} />
+        <Route path="/partner/dashboard" element={<PartnerDashboard />} />
         
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

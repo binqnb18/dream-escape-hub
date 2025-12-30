@@ -39,7 +39,7 @@ const ClientFooter = () => {
     partners: {
       title: "Đối tác khách sạn",
       links: [
-        { label: "Trở thành đối tác", href: "/partner/register" },
+        { label: "Trở thành đối tác", href: "/partner/signup" },
         { label: "Đăng nhập đối tác", href: "/partner/login" },
         { label: "Hỗ trợ đối tác", href: "/help" },
       ],
