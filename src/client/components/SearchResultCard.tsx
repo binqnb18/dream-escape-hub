@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Heart, MapPin, Star, ChevronRight, ChevronLeft, CreditCard, Award, GitCompare, Check, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useFavorites } from "@/hooks/use-favorites";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -324,7 +325,17 @@ const SearchResultCard = ({
                 <div className="inline-flex items-center gap-1.5 bg-[#fff4e5] border border-[#ffb74d] rounded-full px-2.5 py-1">
                   <span className="w-4 h-4 rounded-full bg-destructive text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">1</span>
                   <span className="text-[#e65100] font-semibold text-xs">{couponApplied}</span>
-                  <Info className="w-3.5 h-3.5 text-[#e65100] cursor-help flex-shrink-0" />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Info className="w-3.5 h-3.5 text-[#e65100] cursor-help flex-shrink-0" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[220px] p-3">
+                        <p className="font-semibold text-sm mb-1">Coupon Applied!</p>
+                        <p className="text-xs text-muted-foreground">This discount has been automatically applied to your booking. No code needed.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               )}
 
@@ -490,7 +501,17 @@ const SearchResultCard = ({
                 <div className="inline-flex items-center gap-1 bg-[#fff4e5] border border-[#ffb74d] rounded-full px-2 py-0.5">
                   <span className="w-3 h-3 rounded-full bg-destructive text-white flex items-center justify-center text-[8px] font-bold">1</span>
                   <span className="text-[#e65100] font-semibold text-[10px]">{couponApplied}</span>
-                  <Info className="w-3 h-3 text-[#e65100]" />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Info className="w-3 h-3 text-[#e65100] cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[200px] p-2">
+                        <p className="font-semibold text-xs mb-0.5">Coupon Applied!</p>
+                        <p className="text-[10px] text-muted-foreground">Discount automatically applied.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               )}
               {oldPrice && discount && (
