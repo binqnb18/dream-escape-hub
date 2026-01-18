@@ -1,4 +1,4 @@
-import HotelCard from "./HotelCard";
+import HotelCard from "@/modules/client/components/hotel/HotelCard";
 import hotel1 from "@/assets/hotel-1.jpg";
 import hotel2 from "@/assets/hotel-2.jpg";
 import hotel3 from "@/assets/hotel-3.jpg";
