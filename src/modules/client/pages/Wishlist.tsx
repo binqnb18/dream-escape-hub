@@ -11,9 +11,9 @@ import {
   List,
   SortAsc,
 } from "lucide-react";
-import Header from "@/client/components/Header";
-import ClientFooter from "@/client/components/ClientFooter";
-import WishlistPromotionBanner from "@/client/components/WishlistPromotionBanner";
+import Header from "@/modules/client/components/common/Header";
+import ClientFooter from "@/modules/client/components/common/ClientFooter";
+import WishlistPromotionBanner from "@/modules/client/components/booking/WishlistPromotionBanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

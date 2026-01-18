@@ -17,8 +17,8 @@ import {
   X,
   ChevronRight,
 } from "lucide-react";
-import Header from "@/client/components/Header";
-import ClientFooter from "@/client/components/ClientFooter";
+import Header from "@/modules/client/components/common/Header";
+import ClientFooter from "@/modules/client/components/common/ClientFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

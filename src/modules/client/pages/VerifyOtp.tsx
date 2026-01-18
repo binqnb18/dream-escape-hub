@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import AuthLayout from "@/client/components/auth/AuthLayout";
+import AuthLayout from "@/modules/client/components/auth/AuthLayout";
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
