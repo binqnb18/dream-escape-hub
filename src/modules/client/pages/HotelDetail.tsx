@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import Header from "@/modules/client/components/common/Header";
-import ClientFooter from "@/modules/client/components/common/ClientFooter";
+import Header from "@/modules/client/components/layout/Header";
+import ClientFooter from "@/modules/client/components/layout/ClientFooter";
 import HotelGallery from "@/modules/client/components/hotel/HotelGallery";
 import HotelOverview from "@/modules/client/components/hotel/HotelOverview";
 import HotelRooms from "@/modules/client/components/hotel/HotelRooms";

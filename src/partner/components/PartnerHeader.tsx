@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import ThemeToggle from "@/modules/client/components/common/ThemeToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 
 interface PartnerHeaderProps {

@@ -10,7 +10,7 @@ import {
   ChevronDown,
   Locate,
 } from "lucide-react";
-import Header from "@/modules/client/components/common/Header";
+import Header from "@/modules/client/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

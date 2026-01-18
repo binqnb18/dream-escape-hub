@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, User, Bell, HelpCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import ThemeToggle from "./ThemeToggle";
-import LanguageToggle from "./LanguageToggle";
+import ThemeToggle from "@/components/ThemeToggle";
+import LanguageToggle from "@/components/LanguageToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
