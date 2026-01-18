@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Header from '../components/Header';
-import ClientFooter from '../components/ClientFooter';
+import Header from '@/modules/client/components/common/Header';
+import ClientFooter from '@/modules/client/components/common/ClientFooter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
