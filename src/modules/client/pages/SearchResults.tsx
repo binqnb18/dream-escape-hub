@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import Header from "@/client/components/Header";
-import SearchFilters from "@/client/components/SearchFilters";
-import SearchResultCard from "@/client/components/SearchResultCard";
+import Header from "@/modules/client/components/common/Header";
+import SearchFilters from "@/modules/client/components/booking/SearchFilters";
+import SearchResultCard from "@/modules/client/components/hotel/SearchResultCard";
 import FavoritesList from "@/components/FavoritesList";
 import HotelComparisonBar from "@/components/HotelComparisonBar";
 import { useHotelComparison, ComparisonHotel } from "@/hooks/use-hotel-comparison";

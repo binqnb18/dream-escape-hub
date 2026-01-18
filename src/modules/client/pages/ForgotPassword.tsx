@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import AuthLayout from "@/client/components/auth/AuthLayout";
+import AuthLayout from "@/modules/client/components/auth/AuthLayout";
 
 const ForgotPassword = () => {
   const { forgotPassword, isLoading } = useAuth();
