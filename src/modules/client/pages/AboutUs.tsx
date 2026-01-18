@@ -1,5 +1,5 @@
-import Header from '@/modules/client/components/common/Header';
-import ClientFooter from '@/modules/client/components/common/ClientFooter';
+import Header from '@/modules/client/components/layout/Header';
+import ClientFooter from '@/modules/client/components/layout/ClientFooter';
 import { Card, CardContent } from '@/components/ui/card';
 import { Users, Target, Award, Heart, MapPin, Clock } from 'lucide-react';
 

@@ -1,10 +1,10 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import Header from "@/modules/client/components/common/Header";
+import Header from "@/modules/client/components/layout/Header";
 import SearchFilters from "@/modules/client/components/booking/SearchFilters";
 import SearchResultCard from "@/modules/client/components/hotel/SearchResultCard";
-import FavoritesList from "@/components/FavoritesList";
-import HotelComparisonBar from "@/components/HotelComparisonBar";
+import FavoritesList from "@/modules/client/components/hotel/FavoritesList";
+import HotelComparisonBar from "@/modules/client/components/hotel/HotelComparisonBar";
 import { useHotelComparison, ComparisonHotel } from "@/hooks/use-hotel-comparison";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

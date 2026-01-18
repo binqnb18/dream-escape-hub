@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '@/modules/client/components/common/Header';
-import ClientFooter from '@/modules/client/components/common/ClientFooter';
+import Header from '@/modules/client/components/layout/Header';
+import ClientFooter from '@/modules/client/components/layout/ClientFooter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
