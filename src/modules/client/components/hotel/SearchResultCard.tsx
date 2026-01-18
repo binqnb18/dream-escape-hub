@@ -130,11 +130,18 @@ const SearchResultCard = ({
   return (
     <div
       className={cn(
-        "bg-card rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group",
+        "bg-card rounded-lg border overflow-hidden transition-all duration-300 cursor-pointer group relative",
+        "hover:shadow-xl hover:border-primary/30 hover:-translate-y-1",
         isInComparison && "ring-2 ring-primary border-primary"
       )}
       onClick={() => navigate(`/hotel/${id}`)}
     >
+      {/* Quick Preview Overlay - shows on hover */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none hidden md:block">
+        <div className="absolute bottom-4 left-4 right-4 text-white">
+          <p className="text-sm font-medium">Nhấn để xem chi tiết →</p>
+        </div>
+      </div>
       {/* Desktop Layout */}
       <div className="hidden md:flex">
         {/* Image Section */}

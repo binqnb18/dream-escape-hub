@@ -1,22 +1,25 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "@/modules/client/components/layout/Header";
 import SearchFilters from "@/modules/client/components/booking/SearchFilters";
 import SearchResultCard from "@/modules/client/components/hotel/SearchResultCard";
 import FavoritesList from "@/modules/client/components/hotel/FavoritesList";
 import HotelComparisonBar from "@/modules/client/components/hotel/HotelComparisonBar";
+import DestinationAutocomplete from "@/modules/client/components/booking/DestinationAutocomplete";
 import { useHotelComparison, ComparisonHotel } from "@/hooks/use-hotel-comparison";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Filter,
-  Search,
   Calendar,
   Users,
   ChevronDown,
-  Heart,
+  Map,
+  List,
+  RotateCcw,
+  Loader2,
+  X,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import SkeletonLoader from "@/components/SkeletonLoader";
 import ErrorState from "@/components/ErrorState";
 import EmptyState from "@/components/EmptyState";
@@ -33,6 +36,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import hotel1 from "@/assets/hotel-1.jpg";
 import hotel2 from "@/assets/hotel-2.jpg";
 import hotel3 from "@/assets/hotel-3.jpg";
@@ -48,6 +52,8 @@ const SearchResults = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [displayCount, setDisplayCount] = useState(6);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   // Hotel comparison
   const { hotels: comparisonHotels, addHotel, removeHotel, clearAll, isInComparison, canAddMore, maxHotels } = useHotelComparison();
@@ -58,11 +64,32 @@ const SearchResults = () => {
   const [checkOutDate, setCheckOutDate] = useState<Date>(addDays(new Date(), 1));
   const [guests, setGuests] = useState({ adults: 2, rooms: 1 });
 
-  // Simulate initial loading
+  // Simulate initial loading - reduced time
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
+    const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Infinite scroll
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore && displayCount < mockResults.length) {
+          setIsLoadingMore(true);
+          setTimeout(() => {
+            setDisplayCount((prev) => Math.min(prev + 4, mockResults.length));
+            setIsLoadingMore(false);
+          }, 500);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [isLoadingMore, displayCount]);
 
   // Sync sortBy with URL
   useEffect(() => {
@@ -218,15 +245,33 @@ const SearchResults = () => {
     },
   ];
 
-  const TOTAL_RESULTS = 8157;
-
   const sortOptions = [
-    { key: "best-match", label: "Best match" },
-    { key: "top-reviewed", label: "Top reviewed" },
-    { key: "lowest-price", label: "Lowest price first" },
-    { key: "distance", label: "Distance" },
+    { key: "best-match", label: "Phù hợp nhất" },
+    { key: "top-reviewed", label: "Đánh giá cao" },
+    { key: "lowest-price", label: "Giá thấp nhất" },
+    { key: "distance", label: "Khoảng cách" },
     { key: "hot-deals", label: "Hot Deals!" },
   ];
+
+  // Count active filters
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (filters.budget[0] > 0 || filters.budget[1] < 120000000) count++;
+    count += filters.popularFilters.length;
+    count += filters.reviewScore.length;
+    count += filters.starRating.length;
+    count += filters.propertyType.length;
+    count += filters.paymentOptions.length;
+    count += filters.propertyFacilities.length;
+    count += filters.roomAmenities.length;
+    return count;
+  }, [filters]);
+
+  // Reset filters
+  const handleResetFilters = useCallback(() => {
+    setFilters(defaultFilters);
+    toast.success("Đã xóa tất cả bộ lọc");
+  }, []);
 
   // Filter and sort results
   const filteredAndSortedResults = useMemo(() => {
@@ -276,21 +321,27 @@ const SearchResults = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      {/* Main Header */}
+      <Header />
+
       {/* Sticky Search Bar */}
-      <div className="sticky top-0 z-50 bg-primary shadow-md">
+      <div className="sticky top-16 z-40 bg-primary shadow-md">
         <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-2 bg-card rounded-md overflow-hidden">
-            {/* Location Input */}
+          <div className="flex items-center gap-2 bg-card rounded-lg overflow-hidden shadow-sm">
+            {/* Location Input with Autocomplete */}
             <div className="flex-[2] relative border-r border-border">
-              <div className="relative px-3 py-2">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
+              <div className="px-1 py-1">
+                <DestinationAutocomplete
                   value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  placeholder="Enter destination or hotel"
-                  className="pl-7 h-10 text-sm border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                  onChange={setDestination}
+                  onSelect={(s) => {
+                    setDestination(s.name);
+                    toast.success(`Đã chọn: ${s.name}`);
+                  }}
                 />
-                <span className="text-xs text-primary">8,157 choices</span>
+                <span className="text-xs text-primary ml-9">
+                  {filteredAndSortedResults.length.toLocaleString()} chỗ ở
+                </span>
               </div>
             </div>
 
@@ -299,7 +350,7 @@ const SearchResults = () => {
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex-1 h-14 justify-start px-4 text-left font-normal hover:bg-muted/50 rounded-none border-r border-border"
+                  className="flex-1 h-14 justify-start px-4 text-left font-normal hover:bg-muted/50 rounded-none border-r border-border hidden md:flex"
                 >
                   <Calendar className="h-4 w-4 mr-2 text-muted-foreground shrink-0" />
                   <div className="flex flex-col items-start">
@@ -328,7 +379,7 @@ const SearchResults = () => {
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex-1 h-14 justify-start px-4 text-left font-normal hover:bg-muted/50 rounded-none border-r border-border"
+                  className="flex-1 h-14 justify-start px-4 text-left font-normal hover:bg-muted/50 rounded-none border-r border-border hidden md:flex"
                 >
                   <Calendar className="h-4 w-4 mr-2 text-muted-foreground shrink-0" />
                   <div className="flex flex-col items-start">
@@ -357,16 +408,16 @@ const SearchResults = () => {
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex-1 h-14 justify-between px-4 text-left font-normal hover:bg-muted/50 rounded-none border-r border-border"
+                  className="flex-1 h-14 justify-between px-4 text-left font-normal hover:bg-muted/50 rounded-none border-r border-border hidden md:flex"
                 >
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-2 text-muted-foreground shrink-0" />
                     <div className="flex flex-col items-start">
                       <span className="text-sm font-medium text-foreground">
-                        {guests.adults} adults
+                        {guests.adults} người lớn
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {guests.rooms} room
+                        {guests.rooms} phòng
                       </span>
                     </div>
                   </div>
@@ -376,7 +427,7 @@ const SearchResults = () => {
               <PopoverContent className="w-64 p-4 bg-popover" align="end">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Adults</span>
+                    <span className="text-sm font-medium">Người lớn</span>
                     <div className="flex items-center gap-3">
                       <Button
                         variant="outline"
@@ -398,7 +449,7 @@ const SearchResults = () => {
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Rooms</span>
+                    <span className="text-sm font-medium">Phòng</span>
                     <div className="flex items-center gap-3">
                       <Button
                         variant="outline"
@@ -425,9 +476,10 @@ const SearchResults = () => {
 
             {/* Search Button */}
             <Button
-              className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-none"
+              className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-none rounded-r-lg"
+              onClick={() => toast.success("Đang tìm kiếm...")}
             >
-              SEARCH
+              TÌM KIẾM
             </Button>
           </div>
         </div>
@@ -438,28 +490,76 @@ const SearchResults = () => {
           {/* Filters Sidebar - Desktop only */}
           {!isMobile && (
             <aside className="w-72 flex-shrink-0 hidden lg:block">
-              <div className="sticky top-28">
-                <SearchFilters filters={filters} onFiltersChange={setFilters} />
+              <div className="sticky top-44">
+                {/* Filter Header with Reset */}
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold text-foreground">Bộ lọc</h3>
+                  {activeFiltersCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleResetFilters}
+                      className="text-primary hover:text-primary/80 gap-1.5 h-8"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Xóa tất cả ({activeFiltersCount})
+                    </Button>
+                  )}
+                </div>
+                <SearchFilters 
+                  filters={filters} 
+                  onFiltersChange={setFilters}
+                />
               </div>
             </aside>
           )}
 
           {/* Results Section */}
           <div className="flex-1">
-            {/* Results Count */}
-            <div className="mb-4">
-              <h1 className="text-xl font-bold text-foreground">
-                {destination}: {TOTAL_RESULTS.toLocaleString()} properties found
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Prices shown are per night for 1 room, {guests.adults} adult{guests.adults > 1 ? 's' : ''}
-              </p>
+            {/* Results Header */}
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h1 className="text-xl font-bold text-foreground">
+                  {destination}: {filteredAndSortedResults.length} chỗ nghỉ
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Giá/đêm cho 1 phòng, {guests.adults} người lớn
+                </p>
+              </div>
+
+              {/* View Toggle + Favorites */}
+              <div className="flex items-center gap-2">
+                <div className="hidden md:flex items-center gap-1 bg-muted rounded-lg p-1">
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className="h-8 px-3 gap-1.5"
+                  >
+                    <List className="w-4 h-4" />
+                    <span className="hidden lg:inline">Danh sách</span>
+                  </Button>
+                  <Button
+                    variant={viewMode === "map" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                      setViewMode("map");
+                      toast.info("Chế độ bản đồ đang phát triển");
+                    }}
+                    className="h-8 px-3 gap-1.5"
+                  >
+                    <Map className="w-4 h-4" />
+                    <span className="hidden lg:inline">Bản đồ</span>
+                  </Button>
+                </div>
+                <FavoritesList />
+              </div>
             </div>
 
             {/* Sort Tabs */}
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <div className="flex items-center gap-2 overflow-x-auto pb-2">
-                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Sort by</span>
+            <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 flex-1">
+                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Sắp xếp:</span>
                 {sortOptions.map((option) => (
                   <Button
                     key={option.key}
@@ -479,29 +579,97 @@ const SearchResults = () => {
                   </Button>
                 ))}
               </div>
-              
-              {/* Favorites Button */}
-              <FavoritesList />
             </div>
 
-            {/* Mobile Filter Button */}
+            {/* Mobile Filter Button - Bottom Sheet Style */}
             {isMobile && (
               <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="mb-4">
-                    <Filter className="w-4 h-4 mr-2" />
-                    Filters
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mb-4 w-full justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Filter className="w-4 h-4" />
+                      Bộ lọc
+                      {activeFiltersCount > 0 && (
+                        <Badge variant="secondary" className="ml-1">
+                          {activeFiltersCount}
+                        </Badge>
+                      )}
+                    </div>
+                    <ChevronDown className="w-4 h-4" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] p-0">
-                  <SheetHeader className="p-4 border-b">
-                    <SheetTitle>Search Filters</SheetTitle>
+                <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-2xl">
+                  <SheetHeader className="p-4 border-b sticky top-0 bg-background z-10">
+                    <div className="flex items-center justify-between">
+                      <SheetTitle>Bộ lọc</SheetTitle>
+                      {activeFiltersCount > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleResetFilters}
+                          className="text-primary h-8"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                          Xóa tất cả
+                        </Button>
+                      )}
+                    </div>
                   </SheetHeader>
-                  <div className="p-4 overflow-y-auto h-[calc(100vh-60px)]">
+                  <div className="p-4 overflow-y-auto h-[calc(85vh-140px)]">
                     <SearchFilters filters={filters} onFiltersChange={setFilters} />
                   </div>
+                  <SheetFooter className="p-4 border-t sticky bottom-0 bg-background">
+                    <Button 
+                      className="w-full" 
+                      onClick={() => setIsFiltersOpen(false)}
+                    >
+                      Xem {filteredAndSortedResults.length} kết quả
+                    </Button>
+                  </SheetFooter>
                 </SheetContent>
               </Sheet>
+            )}
+
+            {/* Active Filters Tags */}
+            {activeFiltersCount > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {filters.reviewScore.map((score) => (
+                  <Badge 
+                    key={score}
+                    variant="secondary" 
+                    className="gap-1.5 cursor-pointer hover:bg-destructive/10"
+                    onClick={() => {
+                      setFilters(prev => ({
+                        ...prev,
+                        reviewScore: prev.reviewScore.filter(s => s !== score)
+                      }));
+                    }}
+                  >
+                    {score}
+                    <X className="w-3 h-3" />
+                  </Badge>
+                ))}
+                {filters.starRating.map((star) => (
+                  <Badge 
+                    key={star}
+                    variant="secondary" 
+                    className="gap-1.5 cursor-pointer hover:bg-destructive/10"
+                    onClick={() => {
+                      setFilters(prev => ({
+                        ...prev,
+                        starRating: prev.starRating.filter(s => s !== star)
+                      }));
+                    }}
+                  >
+                    {star}
+                    <X className="w-3 h-3" />
+                  </Badge>
+                ))}
+              </div>
             )}
 
             {/* Loading State */}
@@ -512,12 +680,12 @@ const SearchResults = () => {
             {/* Error State */}
             {error && (
               <ErrorState
-                title="An error occurred"
+                title="Đã xảy ra lỗi"
                 message={error}
                 onRetry={() => {
                   setError(null);
                   setIsLoading(true);
-                  setTimeout(() => setIsLoading(false), 1500);
+                  setTimeout(() => setIsLoading(false), 800);
                 }}
               />
             )}
@@ -525,9 +693,9 @@ const SearchResults = () => {
             {/* Empty State */}
             {!isLoading && !error && filteredAndSortedResults.length === 0 && (
               <EmptyState
-                title="No properties found"
-                message="We couldn't find any properties matching your search criteria."
-                onAction={() => setFilters(defaultFilters)}
+                title="Không tìm thấy chỗ nghỉ"
+                message="Không có kết quả phù hợp với tiêu chí tìm kiếm của bạn."
+                onAction={handleResetFilters}
               />
             )}
 
@@ -573,7 +741,7 @@ const SearchResults = () => {
                     };
 
                     return (
-                      <ScrollReveal key={result.id} delay={index * 80}>
+                      <ScrollReveal key={result.id} delay={index * 50}>
                         <SearchResultCard 
                           {...result} 
                           isInComparison={isInComparison(result.id)}
@@ -585,41 +753,21 @@ const SearchResults = () => {
                   })}
                 </div>
 
-                {/* Load More / Pagination */}
-                {displayCount < filteredAndSortedResults.length && (
-                  <div className="mt-6 text-center pb-32">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Showing {Math.min(displayCount, filteredAndSortedResults.length)} of {filteredAndSortedResults.length} properties
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="min-w-[200px]"
-                      disabled={isLoadingMore}
-                      onClick={() => {
-                        setIsLoadingMore(true);
-                        setTimeout(() => {
-                          setDisplayCount((prev) => prev + 6);
-                          setIsLoadingMore(false);
-                        }, 800);
-                      }}
-                    >
-                      {isLoadingMore ? (
-                        <>
-                          <span className="animate-spin mr-2">⏳</span>
-                          Loading...
-                        </>
-                      ) : (
-                        `Show more properties`
-                      )}
-                    </Button>
-                  </div>
-                )}
+                {/* Infinite Scroll Trigger */}
+                <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+                  {isLoadingMore && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Đang tải thêm...</span>
+                    </div>
+                  )}
+                </div>
 
-                {displayCount >= filteredAndSortedResults.length && filteredAndSortedResults.length > 0 && (
-                  <div className="mt-6 text-center pb-32">
+                {/* End of Results */}
+                {displayCount >= filteredAndSortedResults.length && (
+                  <div className="text-center pb-32">
                     <p className="text-sm text-muted-foreground">
-                      Showing all {filteredAndSortedResults.length} properties
+                      Hiển thị tất cả {filteredAndSortedResults.length} chỗ nghỉ
                     </p>
                   </div>
                 )}
