@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -53,6 +53,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useIsMobile } from "@/hooks/use-mobile";
+import FormStrengthIndicator, { 
+  EmailStrengthIndicator, 
+  PhoneStrengthIndicator,
+  NameStrengthIndicator 
+} from "@/components/FormStrengthIndicator";
 
 // Booking data from previous page
 interface BookingState {
@@ -170,6 +175,51 @@ const Booking = () => {
     if (value && !error) return "success";
     return "default";
   };
+  
+  // Form strength requirements
+  const formRequirements = useMemo(() => {
+    const values = form.watch();
+    const errors = form.formState.errors;
+    
+    return [
+      { 
+        field: "firstName", 
+        label: "Họ", 
+        isValid: !errors.firstName && values.firstName?.length >= 2,
+        isTouched: fieldTouched.firstName || false
+      },
+      { 
+        field: "lastName", 
+        label: "Tên", 
+        isValid: !errors.lastName && values.lastName?.length >= 2,
+        isTouched: fieldTouched.lastName || false
+      },
+      { 
+        field: "email", 
+        label: "Email", 
+        isValid: !errors.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email || ""),
+        isTouched: fieldTouched.email || false
+      },
+      { 
+        field: "phone", 
+        label: "Điện thoại", 
+        isValid: !errors.phone && (values.phone?.length || 0) >= 9,
+        isTouched: fieldTouched.phone || false
+      },
+      { 
+        field: "country", 
+        label: "Quốc gia", 
+        isValid: !errors.country && !!values.country,
+        isTouched: true // Always touched since it has default value
+      },
+      { 
+        field: "agreeTerms", 
+        label: "Điều khoản", 
+        isValid: values.agreeTerms === true,
+        isTouched: fieldTouched.agreeTerms || false
+      },
+    ];
+  }, [form.watch(), form.formState.errors, fieldTouched]);
 
   const totalPrice = booking.roomPrice * booking.nights * booking.rooms;
   const serviceFee = Math.round(totalPrice * 0.1);
@@ -357,6 +407,12 @@ const Booking = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Form Strength Indicator */}
+                <FormStrengthIndicator 
+                  requirements={formRequirements} 
+                  className="mb-6 p-4 bg-muted/50 rounded-lg"
+                />
+                
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -393,6 +449,9 @@ const Booking = () => {
                                   )}
                                 </div>
                               </FormControl>
+                              {field.value && !form.formState.errors.firstName && (
+                                <NameStrengthIndicator name={field.value} fieldLabel="Họ" />
+                              )}
                               <FormMessage className="flex items-center gap-1">
                                 {form.formState.errors.firstName && (
                                   <>
@@ -435,6 +494,9 @@ const Booking = () => {
                                   )}
                                 </div>
                               </FormControl>
+                              {field.value && !form.formState.errors.lastName && (
+                                <NameStrengthIndicator name={field.value} fieldLabel="Tên" />
+                              )}
                               <FormMessage className="flex items-center gap-1">
                                 {form.formState.errors.lastName && (
                                   <>
@@ -481,6 +543,9 @@ const Booking = () => {
                                   )}
                                 </div>
                               </FormControl>
+                              {field.value && (
+                                <EmailStrengthIndicator email={field.value} />
+                              )}
                               <FormMessage className="flex items-center gap-1">
                                 {form.formState.errors.email && (
                                   <>
@@ -540,6 +605,12 @@ const Booking = () => {
                                   </div>
                                 </div>
                               </FormControl>
+                              {field.value && (
+                                <PhoneStrengthIndicator 
+                                  phone={field.value} 
+                                  countryCode={phoneCountryCode} 
+                                />
+                              )}
                               <FormMessage className="flex items-center gap-1 text-destructive">
                                 {form.formState.errors.phone && (
                                   <>
