@@ -14,6 +14,7 @@ import SimilarHotels from "@/modules/client/components/hotel/SimilarHotels";
 import BookingForm from "@/modules/client/components/hotel/BookingForm";
 import ComparisonFloatingBar from "@/modules/client/components/hotel/ComparisonFloatingBar";
 import ShareModal from "@/modules/client/components/hotel/ShareModal";
+import VirtualTour from "@/modules/client/components/hotel/VirtualTour";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, Share2, ChevronRight } from "lucide-react";
@@ -211,8 +212,9 @@ const HotelDetail = () => {
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Content */}
           <div className="lg:col-span-2 space-y-10">
-            <section id="overview" className="scroll-mt-36">
+            <section id="overview" className="scroll-mt-36 space-y-6">
               <HotelOverview hotel={hotelData} />
+              <VirtualTour hotelName={hotelData.name} />
             </section>
             
             <section id="rooms" className="scroll-mt-36">
